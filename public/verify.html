@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Проверка билетов - Usupovo Life Hall</title>
+    
+    <!-- PWA мета-теги для iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Проверка билетов">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2c3e50">
+    
+    <!-- Иконки для iOS -->
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/images/icon-512.png">
+    
+    <!-- Манифест -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            /* Safe area для iPhone с notch */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            display: flex;
+            flex-direction: column;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 100;
+            padding-top: calc(1rem + env(safe-area-inset-top));
+        }
+        
+        .header h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .container { 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 1rem;
+            padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+        }
+        
+        .scanner-section {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .scanner { 
+            text-align: center; 
+            margin: 0;
+        }
+        
+        .scanner h3 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        #reader { 
+            width: 100%; 
+            height: 60vh;
+            min-height: 400px;
+            max-height: 600px;
+            border: 3px solid #3498db; 
+            border-radius: 20px; 
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #reader video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+        
+        .scanner-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        button { 
+            background: #3498db; 
+            color: white; 
+            border: none; 
+            padding: 16px 24px;
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            width: 100%;
+            min-height: 52px;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+        }
+        
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        button.stop {
+            background: #e74c3c;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        
+        button.success {
+            background: #27ae60;
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+        
+        .manual-input-section {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .manual-input {
+            text-align: center;
+        }
+        
+        .manual-input h3 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .manual-input input {
+            padding: 16px;
+            border: 2px solid #3498db;
+            border-radius: 12px;
+            width: 100%;
+            margin: 0.75rem 0;
+            font-size: 16px; /* Предотвращает zoom на iOS */
+            min-height: 52px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .manual-input input:focus {
+            outline: none;
+            border-color: #2980b9;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        }
+        
+        .ticket-info { 
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .ticket-info.valid { 
+            border-left: 5px solid #27ae60;
+        }
+        
+        .ticket-info.invalid { 
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .ticket-info h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .ticket-info .info-row {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .ticket-info .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .ticket-info .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+            flex: 0 0 40%;
+        }
+        
+        .ticket-info .info-value {
+            color: #555;
+            text-align: right;
+            flex: 1;
+        }
+        
+        .camera-error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 1rem;
+            background: #fdf2f2;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 2px solid #e74c3c;
+        }
+        
+        /* Стили для льготных билетов */
+        .discount-warning {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            color: #856404;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .discount-category {
+            background: #e8f4fd;
+            border: 2px solid #3498db;
+            color: #2c3e50;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+        
+        .ticket-info.discount-ticket {
+            border-left: 5px solid #e67e22;
+            background: #fffaf0;
+        }
+        
+        .discount-badge {
+            background: #e67e22;
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+        
+        .scanner-status {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            background: rgba(46, 204, 113, 0.95);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .loading-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Адаптивность для разных размеров экранов */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            
+            .scanner-section,
+            .manual-input-section {
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            #reader {
+                height: 50vh;
+                min-height: 350px;
+                border-radius: 15px;
+            }
+            
+            .scanner h3,
+            .manual-input h3 {
+                font-size: 1rem;
+            }
+        }
+        
+        /* iPhone 14 Pro Max и подобные (высокие экраны) */
+        @media (min-height: 900px) and (max-width: 430px) {
+            #reader {
+                height: 55vh;
+                min-height: 450px;
+            }
+        }
+        
+        /* Ландшафтная ориентация */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body {
+                flex-direction: row;
+            }
+            
+            .header {
+                writing-mode: vertical-rl;
+                text-orientation: mixed;
+                padding: 1rem 0.5rem;
+                width: auto;
+            }
+            
+            .container {
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            
+            .scanner-section,
+            .manual-input-section {
+                min-width: 300px;
+                margin-right: 1rem;
+            }
+            
+            #reader {
+                height: 100%;
+                min-height: 300px;
+            }
+        }
+        
+        /* Улучшения для iOS Safari */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #reader {
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Проверка билетов</h1>
+    </div>
+    
+    <div class="container">
+        <div class="scanner-section">
+            <div class="scanner">
+                <h3>📷 Сканирование QR-кода</h3>
+                <div id="reader">
+                    <div class="loading">
+                        <div class="loading-icon">📷</div>
+                        <p>Нажмите кнопку для запуска камеры</p>
+                    </div>
+                </div>
+                <div id="cameraError" class="camera-error" style="display: none;"></div>
+                <div class="scanner-buttons">
+                    <button id="startScanner" onclick="startQRScanner()">
+                        📷 Запустить сканер
+                    </button>
+                    <button id="stopScanner" onclick="stopQRScanner()" class="stop" style="display: none;">
+                        ⏹️ Остановить сканер
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="manual-input-section">
+            <div class="manual-input">
+                <h3>📝 Ручной ввод</h3>
+                <input type="text" id="manualTicketInput" 
+                       placeholder="Введите номер билета" 
+                       autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       spellcheck="false">
+                <button onclick="checkManualTicket()" class="success">
+                    🔍 Проверить билет
+                </button>
+            </div>
+        </div>
+        
+        <div id="ticketInfo" class="ticket-info">
+            <!-- Сюда будет загружаться информация о билете -->
+        </div>
+    </div>
+
+    <script src="toast.js"></script>
+    <script src="verify.js"></script>
+</body>
+</html>

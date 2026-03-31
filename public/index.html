@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Официальный сайт концертного зала Usupovo Life Hall. Афиша, билеты на ближайшие мероприятия, схема зала и контакты.">
+    <meta name="keywords" content="Юсупово Лайф Холл, Usupovo Life Hall, концертный зал, афиша, купить билет, Домодедово">
+    <title>Usupovo Life Hall - Концертный зал</title>
+    
+    <!-- SEO и соцсети -->
+    <meta property="og:title" content="Usupovo Life Hall - Концертный зал">
+    <meta property="og:description" content="Официальный сайт концертного зала Usupovo Life Hall. Афиша, билеты на ближайшие мероприятия, схема залов и контакты.">
+    <meta property="og:image" content="/images/preview.jpg">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/images/logo-small.png" type="image/png">
+    
+    <!-- Мобильные устройства -->
+    <meta name="theme-color" content="#2c3e50">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="toast.js"></script>
+    <script defer src="analytics.js"></script>
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <img src="/images/logo-small.png" alt="Логотип" class="logo-img">
+                <h1>Usupovo Life Hall</h1>
+            </div>
+            <button class="menu-toggle" onclick="toggleMobileMenu()" aria-label="Меню">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#events" onclick="closeMobileMenu()">Мероприятия</a></li>
+                <li><a href="#about" onclick="closeMobileMenu()">О зале</a></li>
+                <li><a href="#contacts" onclick="closeMobileMenu()">Контакты</a></li>
+                <li><a href="admin.html" onclick="closeMobileMenu()" class="admin-link" title="Админ-панель">⚙️</a></li>
+            </ul>
+        </nav>
+        
+        <!-- Кнопка поддержки -->
+        <a href="https://t.me/usupovo_life_hall_support_bot" target="_blank" class="support-button">
+            <div class="support-icon">💬</div>
+            <div class="support-text">Техподдержка</div>
+        </a>
+    </header>
+
+    <!-- Главный баннер -->
+    <section class="hero">
+        <div class="hero-content">
+            <h2>Добро пожаловать на сайт Usupovo Life Hall</h2>
+            <p>Лучшие мероприятия только здесь</p>
+            <button class="cta-button" onclick="scrollToEvents()">Смотреть мероприятия</button>
+        </div>
+    </section>
+
+    <!-- Секция мероприятий -->
+    <section id="events" class="events-section animated-section">
+        <h2>Ближайшие мероприятия</h2>
+        <div class="events-container" id="eventsContainer">
+            <!-- Сюда JavaScript будет добавлять мероприятия -->
+            <div class="loading">Загрузка мероприятий...</div>
+        </div>
+    </section>
+
+    <!-- Секция о зале -->
+    <section id="about" class="about-section animated-section">
+        <div class="about-logo">
+            <img src="/images/logo-big.png" alt="Usupovo Life Hall" class="logo-big">
+        </div>
+        <h2>О нашем зале</h2>
+        <div class="about-content">
+            <div class="about-text">
+                <p>Usupovo Life Hall - это современный концертный зал с богатой историей и передовым оборудованием.</p>
+                <ul>
+                    <li>Вместимость: 8 человек</li>
+                    <li>Премиальное звуковое оборудование</li>
+                    <li>Удобная система бронирования</li>
+                    <li>Профессиональная команда</li>
+                </ul>
+            </div>
+        </div>
+        <div class="map-container">
+            <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A425a0edf6c3b26f2b480ee0899b414ae885f28eeac93f9cf13d91d13c905c52d&amp;source=constructor" width="100%" height="400" frameborder="0"></iframe>
+        </div>
+    </section>
+
+    <!-- Подвал -->
+    <footer id="contacts" class="footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <div class="footer-logo-section">
+                        <img src="/images/logo-small.png" alt="Логотип" class="footer-logo-img">
+                        <h3>Usupovo Life Hall</h3>
+                    </div>
+                    <p class="footer-tagline">Современный концертный зал с богатой историей</p>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Навигация</h4>
+                    <ul>
+                        <li><a href="#events">Мероприятия</a></li>
+                        <li><a href="#about">О зале</a></li>
+                        <li><a href="#contacts">Контакты</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contacts">
+                    <h4>Контакты</h4>
+                    <ul>
+                        <li>
+                            <span class="contact-icon">📞</span>
+                            <a href="tel:+79858349494">+7 (985) 834-94-94</a>
+                        </li>
+                        <li>
+                            <span class="contact-icon">📧</span>
+                            <a href="mailto:rex.corp@yandex.ru">rex.corp@yandex.ru</a>
+                        </li>
+                        <li>
+                            <span class="contact-icon">📍</span>
+                            <span>г.о. Домодедово, КП "Юсупово Лайф Парк",<br>ул. Рассветная, 8</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="footer-support">
+                    <h4>Поддержка</h4>
+                    <a href="https://t.me/usupovo_life_hall_support_bot" target="_blank" class="footer-support-link">
+                        <span class="support-icon">💬</span>
+                        Telegram-бот
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Usupovo Life Hall. Все права защищены.</p>
+                <p class="footer-author">Разработано REX Corporation</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно для бронирования -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Бронирование билетов</h3>
+            <div id="modalBody">
+                <!-- Сюда будет подгружаться форма бронирования -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
