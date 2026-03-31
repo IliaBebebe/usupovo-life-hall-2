@@ -1598,11 +1598,7 @@
             const password = document.getElementById('adminPassword').value;
             const errorElement = document.getElementById('loginError');
             
-            // Пароль должен храниться в переменной окружения на сервере
-            // Временное решение: сложный пароль
-            const ADMIN_PASSWORD = 'Usupovo2026!Admin#Secure';
-            
-            if (password === ADMIN_PASSWORD) {
+            if (password === 'Жопа') {
                 // Пароль верный - показываем админ-панель
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
