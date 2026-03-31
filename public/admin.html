@@ -1594,34 +1594,52 @@
 
     <script>
         // Функция проверки пароля
-        function checkAdminPassword() {
+        async function checkAdminPassword() {
             const password = document.getElementById('adminPassword').value;
             const errorElement = document.getElementById('loginError');
             
-            if (password === 'Жопа') {
-                // Пароль верный - показываем админ-панель
-                document.getElementById('adminLogin').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
 
-                // Инициализируем админ-панель если она еще не создана
-                if (!window.admin) {
-                    try {
-                        window.admin = new AdminPanel();
-                    } catch (error) {
-                        console.error('AdminPanel error:', error);
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Пароль верный - показываем админ-панель
+                    document.getElementById('adminLogin').style.display = 'none';
+                    document.getElementById('adminContent').style.display = 'block';
+                    sessionStorage.setItem('adminAuthenticated', 'true');
+
+                    // Инициализируем админ-панель если она еще не создана
+                    if (!window.admin) {
+                        try {
+                            window.admin = new AdminPanel();
+                        } catch (error) {
+                            console.error('AdminPanel error:', error);
+                        }
                     }
+                } else {
+                    // Пароль неверный - показываем ошибку
+                    errorElement.style.display = 'block';
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('adminPassword').focus();
                 }
-            } else {
-                // Пароль неверный - показываем ошибку
+            } catch (error) {
+                console.error('Login error:', error);
+                errorElement.textContent = 'Ошибка соединения с сервером';
                 errorElement.style.display = 'block';
-                document.getElementById('adminPassword').value = '';
-                document.getElementById('adminPassword').focus();
             }
         }
 
         // Выход из админ-панели
         function logoutAdmin() {
             if (confirm('Вы уверены, что хотите выйти?')) {
+                sessionStorage.removeItem('adminAuthenticated');
                 document.getElementById('adminLogin').style.display = 'flex';
                 document.getElementById('adminContent').style.display = 'none';
                 document.getElementById('adminPassword').value = '';
@@ -1638,7 +1656,22 @@
 
         // Фокусируемся на поле пароля при загрузке
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('adminPassword').focus();
+            // Проверяем, аутентифицирован ли пользователь
+            if (sessionStorage.getItem('adminAuthenticated') === 'true') {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                
+                // Инициализируем админ-панель
+                if (!window.admin) {
+                    try {
+                        window.admin = new AdminPanel();
+                    } catch (error) {
+                        console.error('AdminPanel error:', error);
+                    }
+                }
+            } else {
+                document.getElementById('adminPassword').focus();
+            }
         });
 
         // Функция для открытия страницы проверки билетов
