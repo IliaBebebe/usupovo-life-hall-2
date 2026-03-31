@@ -14,6 +14,29 @@ body {
     -moz-osx-font-smoothing: grayscale;
     touch-action: manipulation; /* Улучшает отзывчивость на touch */
 }
+
+/* Сообщение когда нет мероприятий */
+.no-events {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin: 2rem auto;
+    max-width: 500px;
+}
+
+.no-events p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.no-events-subtitle {
+    font-size: 1rem !important;
+    color: #999;
+}
+
 .header {
     background: #2c3e50;
     color: white;

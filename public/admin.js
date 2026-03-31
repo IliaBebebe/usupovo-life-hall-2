@@ -18,11 +18,10 @@ class AdminPanel {
         this.updateTime();
         // Сохраняем ID интервала для возможной очистки
         this.timeInterval = setInterval(() => this.updateTime(), 1000);
-        
+
         this.registerServiceWorker();
         this.setupEventListeners();
         this.loadDashboard();
-        this.checkRestartStatus();
         this.loadEventsForSelect();
         console.log('✅ Все методы init выполнены');
     }
@@ -1627,10 +1626,6 @@ class AdminPanel {
         const statsGrid = document.getElementById('statsGrid');
         if (!statsGrid) return;
 
-        const serverStart = stats.server_start_time ? new Date(stats.server_start_time) : null;
-        const uptimeText = stats.uptime_seconds !== undefined ? this.formatDuration(stats.uptime_seconds) : 'Нет данных';
-        const startText = serverStart ? serverStart.toLocaleString('ru-RU') : 'Нет данных';
-
         statsGrid.innerHTML = `
             <div class="stat-card">
                 <div class="stat-number">${stats.total_bookings || 0}</div>
@@ -1647,15 +1642,6 @@ class AdminPanel {
             <div class="stat-card">
                 <div class="stat-number">${stats.used_tickets || 0}</div>
                 <div class="stat-label">Использовано билетов</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" style="font-size: 1.4rem;">
-                    ${startText}
-                </div>
-                <div class="stat-label">
-                    Сайт работает с<br>
-                    <span style="display: inline-block; margin-top: 0.25rem; color: #2c3e50; font-weight: 600;">${uptimeText}</span>
-                </div>
             </div>
         `;
     }
@@ -2529,25 +2515,6 @@ class AdminPanel {
                     notification.remove();
                 }
             }, 5000);
-        }
-    }
-
-    async checkRestartStatus() {
-        try {
-            const response = await fetch('/api/admin/restart-status');
-            const data = await response.json();
-            
-            if (data.success) {
-                if (data.backupNotLoaded) {
-                    this.showPushNotification('⚠️ Сервис перезапущен', 'Резервная копия не загружена!');
-                    this.showNotification('⚠️ Сервис был перезапущен. Резервная копия не загружена!', 'warning');
-                } else {
-                    // Optional: show restart notification
-                    // this.showNotification(`🔄 Сервис перезапущен ${data.lastRestart}`, 'info');
-                }
-            }
-        } catch (error) {
-            console.error('Error checking restart status:', error);
         }
     }
 

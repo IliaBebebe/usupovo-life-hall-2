@@ -16,13 +16,14 @@
 
 | Layer | Technology |
 |-------|------------|
-| **Backend** | Node.js 20.x + Express |
-| **Database** | SQLite3 |
+| **Backend** | Node.js 20.x + Vercel Serverless Functions |
+| **Database** | Vercel Postgres (Neon) |
 | **Frontend** | Vanilla JavaScript (ES6+) |
 | **Styling** | CSS3 (responsive, adaptive) |
 | **PWA** | Service Worker |
 | **QR Codes** | html5-qrcode library |
 | **Charts** | Chart.js 4.4.0 |
+| **Hosting** | Vercel |
 
 ## Project Structure
 
@@ -32,25 +33,33 @@ usupovo-life-hall/
 │   ├── index.html              # Main public page (events, booking)
 │   ├── admin.html              # Admin panel
 │   ├── verify.html             # Ticket verifier page
-│   ├── script.js               # Main client logic
-│   ├── admin.js                # Admin panel logic
-│   ├── verify.js               # Verifier logic
-│   ├── analytics.js            # Visitor analytics
+│   ├── script.js               # Main client logic (2482 lines)
+│   ├── admin.js                # Admin panel logic (2714 lines)
+│   ├── verify.js               # Verifier logic (825 lines)
+│   ├── analytics.js            # Visitor analytics (201 lines)
 │   ├── style.css               # Responsive styles
 │   ├── toast.js                # Toast notifications
-│   ├── manifest.json           # PWA manifest
+│   ├── manifest.json           # PWA manifest (verify page)
 │   ├── admin-manifest.json     # Admin PWA manifest
 │   ├── sw.js                   # Service worker
 │   ├── images/                 # Images, logos, event photos
-│   └── lib/                    # Third-party libraries
-├── server/
-│   ├── routes/                 # API route handlers (empty)
-│   └── usupovo-hall.db         # SQLite database
-├── server.js                   # Main Express server + API
-├── promocodes.js               # Promo code controller
+│   └── lib/                    # Third-party libraries (html5-qrcode)
+├── api/                        # Vercel Serverless Functions
+│   ├── db.js                   # Database configuration (@vercel/postgres)
+│   └── index.js                # Unified API router (all endpoints)
+├── server/                     # Legacy server structure (for reference)
+│   └── api/                    # Old API files (not used in production)
+├── schema.sql                  # PostgreSQL database schema
+├── vercel.json                 # Vercel configuration
+├── server.js                   # Legacy Express server (for local dev)
+├── dev-server.js               # Local development server with PostgreSQL
+├── promocodes.js               # Legacy promo code controller (SQLite)
+├── init-db.js                  # Database initialization script
+├── seed-db.js                  # Database seeding script
 ├── package.json                # Dependencies & scripts
 ├── README.md                   # Full documentation (Russian)
-├── .gitignore                  # Git ignore rules
+├── VERCEL_DEPLOYMENT.md        # Vercel deployment guide
+├── .env.example                # Environment variables template
 └── QWEN.md                     # This file
 ```
 
@@ -59,6 +68,8 @@ usupovo-life-hall/
 ### Prerequisites
 - Node.js 20.x or higher
 - npm or yarn
+- Vercel account (for deployment)
+- Vercel Postgres database
 
 ### Installation
 
@@ -66,17 +77,43 @@ usupovo-life-hall/
 npm install
 ```
 
-### Running the Server
+### Local Development
+
+1. **Create `.env.local` file**
+
+```bash
+cp .env.example .env.local
+```
+
+2. **Add database connection string**
+
+```env
+POSTGRES_URL=postgres://user:password@host.us-east-2.aws.neon.tech/dbname?sslmode=require
+```
+
+3. **Run the server**
 
 ```bash
 # Production
 npm start
 
-# Development (same command, no hot reload configured)
+# Development
 npm run dev
 ```
 
 The server starts on `http://localhost:3000`
+
+### Deployment to Vercel
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+```
+
+Or push to Git repository connected to Vercel.
 
 ### Key URLs
 
@@ -88,7 +125,7 @@ The server starts on `http://localhost:3000`
 
 ## Database Schema
 
-The application uses SQLite3 with the following tables:
+The application uses PostgreSQL (Neon) with the following tables:
 
 | Table | Description |
 |-------|-------------|
@@ -114,19 +151,21 @@ The application uses SQLite3 with the following tables:
 | GET | `/api/ticket/:ticketId` | Get ticket info |
 | POST | `/api/ticket/:ticketId/use` | Mark ticket as used |
 | GET | `/api/discount-categories` | List discount categories |
+| POST | `/api/create-payment` | Create payment |
+| POST | `/api/confirm-payment` | Confirm payment |
+| POST | `/api/promo/validate` | Validate promo code |
+| POST | `/api/analytics/session-start` | Track session start |
+| POST | `/api/analytics/session-update` | Update session |
+| POST | `/api/analytics/session-end` | Track session end |
 
 ### Admin Routes
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/admin/events` | List events with sales data |
-| POST | `/api/admin/events` | Create event |
-| PUT | `/api/admin/events/:id` | Update event |
-| DELETE | `/api/admin/events/:id` | Delete event |
-| GET | `/api/admin/seats/event/:id` | Get event seats |
 | POST | `/api/admin/events/:id/seats/bulk` | Bulk create seats |
+| GET | `/api/admin/seats/event/:id` | Get event seats |
 | PUT | `/api/admin/seats/:id` | Update seat |
-| DELETE | `/api/admin/seats/:id` | Delete seat |
 | GET | `/api/admin/bookings` | List all bookings |
 | DELETE | `/api/admin/bookings/:id` | Delete booking (frees seats) |
 | GET | `/api/admin/promocodes` | List promo codes |
@@ -135,23 +174,21 @@ The application uses SQLite3 with the following tables:
 | DELETE | `/api/admin/promocodes/:id` | Delete promo code |
 | GET | `/api/admin/discount-categories` | List discount categories |
 | POST | `/api/admin/discount-categories` | Create category |
-| PUT | `/api/admin/discount-categories/:id` | Update category |
-| DELETE | `/api/admin/discount-categories/:id` | Delete category |
-| GET | `/api/admin/visitor-stats` | Visitor session data |
-| GET | `/api/admin/visitor-stats/aggregated` | Aggregated analytics |
 | GET | `/api/admin/visitor-stats/chart?days=30` | Chart data |
 | GET | `/api/admin/export` | Export all data (JSON) |
-| POST | `/api/admin/import` | Import data from JSON/URL |
+| POST | `/api/admin/import` | Import data from JSON |
 | GET | `/api/admin/last-backup-info` | Last backup info |
+| GET | `/api/admin/ticket-type` | Get ticket type |
+| POST | `/api/admin/ticket-type` | Update ticket type |
 
 ## Key Configuration
 
 ### Default Admin Password
 `Жопа` (stored client-side in `admin.html` — **security risk**)
 
-### Database Location
-- Local: `./usupovo-hall.db`
-- Production: `process.env.DATABASE_URL`
+### Database Connection
+- **Vercel**: `POSTGRES_URL` environment variable (auto-set by Vercel)
+- **Local**: `.env.local` file with `POSTGRES_URL`
 
 ### Default Discount Categories
 - Стандартный (0%)
@@ -165,15 +202,23 @@ The application uses SQLite3 with the following tables:
 ## Development Conventions
 
 ### Code Style
-- **Backend**: CommonJS modules, callback-based SQLite queries
+- **Backend**: CommonJS modules for db.js, ES modules for API routes
 - **Frontend**: Vanilla ES6+, direct DOM manipulation
 - **Naming**: Russian for user-facing strings, English for code identifiers
+- **API Routes**: Named exports with `handler` function and `config` object
+
+### Vercel Serverless Conventions
+
+- Each API endpoint is a separate file in `server/api/`
+- Use `export default async function handler(req, res)`
+- Set `export const config` for body parser settings
+- Use `@vercel/postgres` `sql` tagged template for queries
+- Handle HTTP methods with `req.method` checks
 
 ### Security Considerations
 - ⚠️ Admin password is client-side (needs server-side auth)
 - ⚠️ No rate limiting on API endpoints
-- ⚠️ No HTTPS enforcement
-- ⚠️ All APIs open on localhost
+- ⚠️ No HTTPS enforcement (handled by Vercel)
 - ✅ Backup/restore functionality available in admin panel
 
 ### Known Limitations
@@ -181,6 +226,7 @@ The application uses SQLite3 with the following tables:
 - No user authentication for customers
 - No email/SMS notifications
 - Single venue support only
+- Serverless timeout: 10 seconds (Hobby plan)
 
 ## Common Tasks
 
@@ -192,11 +238,10 @@ The application uses SQLite3 with the following tables:
 ```javascript
 POST /api/admin/events/:id/seats/bulk
 {
-  "rows": ["A", "B", "C"],
+  "rows": 10,
   "seatsPerRow": 10,
-  "vipRows": ["A"],
-  "vipPrice": 2500,
-  "standardPrice": 1500
+  "basePrice": 1500,
+  "vipRows": [0, 1]
 }
 ```
 
@@ -210,37 +255,76 @@ POST /api/admin/events/:id/seats/bulk
 2. Upload JSON file or provide URL
 3. Confirm import (⚠️ overwrites all data)
 
+### Initialize Database
+```bash
+psql $POSTGRES_URL -f schema.sql
+```
+
 ## Troubleshooting
 
-### Database Issues
-- Database file: `usupovo-hall.db` in project root or `server/` folder
-- Tables auto-created on server start
-- Migrations run automatically for schema updates
+### Database Connection Issues
+- Check `POSTGRES_URL` environment variable
+- Verify database is created in Vercel/Neon dashboard
+- Run `schema.sql` to create tables
 
-### Payment Issues
-- Test mode only — manual confirmation required in admin panel
-- For production: implement Tinkoff webhook handler
+### Serverless Timeout
+- Optimize database queries
+- Add indexes on frequently queried columns
+- Consider upgrading to Pro plan (60 sec timeout)
 
-### PWA Issues
-- Service worker: `sw.js`
-- Manifests: `manifest.json` (public), `admin-manifest.json` (admin)
-- Clear cache if updates don't appear
+### Module Not Found: @vercel/postgres
+```bash
+npm install @vercel/postgres
+git add package.json
+git commit && git push
+```
+
+### Cold Start Delay
+- First request after deployment may be slow (~1-2 sec)
+- Subsequent requests are fast
 
 ## File References
 
 | File | Purpose |
 |------|---------|
-| `server.js` | Main server (1728 lines) — Express setup, DB init, all API routes |
-| `promocodes.js` | Promo code CRUD operations |
+| `server/api/db.js` | Database configuration and initialization |
+| `server/api/events.js` | Events list endpoint |
+| `server/api/book.js` | Booking creation endpoint |
+| `server/api/admin/bookings.js` | Admin bookings endpoint |
 | `public/script.js` | Public page logic (events, booking, seat selection) |
 | `public/admin.js` | Admin panel logic (events, seats, bookings, analytics) |
 | `public/verify.js` | Ticket verification with QR scanner |
 | `public/analytics.js` | Visitor tracking and analytics |
 | `public/style.css` | All styles (responsive, adaptive) |
+| `schema.sql` | PostgreSQL schema |
+| `vercel.json` | Vercel configuration |
+| `VERCEL_DEPLOYMENT.md` | Deployment guide |
 
 ## Version Info
 
-- **Current Version**: 1.2.0
-- **Last Update**: January 2025
+- **Current Version**: 2.0.0 (Vercel Migration)
+- **Previous Version**: 1.2.0 (Render/SQLite)
+- **Last Update**: March 2026
 - **License**: MIT
 - **Author**: REX Corporation
+
+## Migration History
+
+### v2.0.0 — Vercel Migration (March 2026)
+- ✅ Migrated from SQLite to PostgreSQL (Neon)
+- ✅ Converted to Vercel Serverless Functions
+- ✅ Created separate API endpoint files
+- ✅ Added deployment documentation
+- ✅ Updated dependencies (@vercel/postgres)
+
+### v1.2.0 (January 2025)
+- Added booking deletion with seat release
+- Added backup import via URL
+- Code optimization
+
+### v1.1.0 (January 2025)
+- Added backup/restore functionality
+- Visitor analytics
+
+### v1.0.0
+- Initial release

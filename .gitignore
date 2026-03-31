@@ -134,6 +134,14 @@ dist
 !.yarn/sdks
 !.yarn/versions
 
-# Vite logs files
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
+# Vercel
+.vercel
+
+# Vercel environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel build artifacts
+.env*.local

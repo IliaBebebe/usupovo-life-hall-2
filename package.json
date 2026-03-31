@@ -1,30 +1,27 @@
 {
   "name": "usupovo-life-hall",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Usupovo Life Hall - Ticket Booking & Verification System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node dev-server.js",
+    "dev": "node dev-server.js",
+    "init-db": "node init-db.js",
+    "seed-db": "node seed-db.js"
   },
   "keywords": [
     "tickets",
     "booking",
-    "event-management",
-    "concert",
-    "life hall",
-    "юсупово лайф холл",
-    "юсупово холл",
-    "лайф холл",
-    "usupovo life hall"
+    "event-management"
   ],
   "author": "REX Corporation",
   "license": "MIT",
   "dependencies": {
+    "@vercel/postgres": "^0.10.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "multer": "^2.0.2",
-    "sqlite3": "^5.1.6"
+    "pg": "^8.20.0"
   },
   "engines": {
     "node": "20.x"

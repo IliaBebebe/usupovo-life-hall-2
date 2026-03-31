@@ -60,41 +60,26 @@ const App = {
     async loadEventsFromAPI() {
         try {
             const response = await fetch(`${API_BASE}/events`);
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
+
             const events = await response.json();
             this.displayEvents(events);
-            
+
         } catch (error) {
             console.error('Ошибка загрузки мероприятий:', error);
-            const sampleEvents = [
-                {
-                    id: 1,
-                    name: "Джазовый вечер с 'The Blue Notes'",
-                    date: new Date(Date.now() + 86400000).toISOString().substring(0, 16),
-                    description: "Элегантный вечер живого джаза, посвященный классике 50-х и 60-х годов.",
-                    image_url: "jazz.jpg",
-                    venue: "Usupovo Life Hall",
-                    duration: 120,
-                    available_seats: 12,
-                    total_seats: 12
-                },
-                {
-                    id: 2,
-                    name: "Stand-Up Comedy Show",
-                    date: new Date(Date.now() + 86400000 * 3).toISOString().substring(0, 16),
-                    description: "Выступление трех звезд комедии, которые расскажут о жизни в Подмосковье.",
-                    image_url: "comedy.jpg",
-                    venue: "Usupovo Life Hall",
-                    duration: 90,
-                    available_seats: 8,
-                    total_seats: 12
-                }
-            ];
-            this.displayEvents(sampleEvents);
+            // Показываем сообщение что мероприятий нет
+            const container = document.getElementById('eventsContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="no-events">
+                        <p>⚠️ В данный момент мероприятий нет</p>
+                        <p class="no-events-subtitle">Заходите позже!</p>
+                    </div>
+                `;
+            }
         }
     },
     displayEvents(events) {

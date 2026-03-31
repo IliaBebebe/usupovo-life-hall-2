@@ -1234,7 +1234,7 @@
             <button onclick="showSection('seatsManagement')">💺 Управление местами</button>
             <button onclick="showSection('promoCodes')">🎁 Промокоды</button>
             <button onclick="showSection('discountCategories')">🎫 Льготные категории</button>
-            <button onclick="showSection('backup')">💾 Резервное копирование</button>
+            <!-- <button onclick="showSection('backup')">💾 Резервное копирование</button> -->
             <button onclick="openTicketChecker()" class="ticket-checker">🎫 Режим билетёра</button>
             <button onclick="logoutAdmin()" class="logout-btn">🚪 Выйти</button>
         </nav>
@@ -1243,15 +1243,17 @@
             <!-- Общая статистика -->
             <section id="dashboard" class="section active">
                 <h2>📊 Общая статистика</h2>
-                <div class="stats-grid" id="statsGrid">
+                <div id="statsGrid">
                     <div class="loading">Загрузка статистики...</div>
                 </div>
-                
-                <!-- Информация о последнем бэкапе -->
+
+                <!-- Информация о последнем бэкапе (закомментировано, т.к. БД постоянная) -->
+                <!--
                 <div id="backupInfo" style="margin-top: 2rem;">
                     <div class="loading">Загрузка информации о бэкапе...</div>
                 </div>
-                
+                -->
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;" class="dashboard-grid">
                     <div>
                         <h2>📈 Последние бронирования</h2>
@@ -1472,8 +1474,9 @@
                     </div>
                 </div>
             </section>
-            
-            <!-- Резервное копирование -->
+
+            <!-- Резервное копирование (закомментировано, т.к. БД постоянная Neon) -->
+            <!--
             <section id="backup" class="section">
                 <h2>💾 Резервное копирование и восстановление</h2>
                 
@@ -1536,7 +1539,8 @@
                     </ul>
                 </div>
             </section>
-            
+            -->
+
             <!-- Управление местами -->
             <section id="seatsManagement" class="section">
                 <h2>💺 Управление местами</h2>
@@ -1694,14 +1698,15 @@
                     case 'seatsManagement':
                         admin.loadEventsForSelect();
                         break;
-                    case 'backup':
-                        // Секция резервного копирования не требует загрузки данных
-                        break;
+                    // case 'backup':
+                    //     // Секция резервного копирования не требует загрузки данных
+                    //     break;
                 }
             }
         }
 
-        // Функции для экспорта/импорта
+        // Функции для экспорта/импорта (закомментировано)
+        <!--
         let selectedFile = null;
 
         async function exportDatabase() {
@@ -1928,6 +1933,7 @@
                 btn.textContent = '⚠️ Импортировать данные';
             }
         }
+        -->
     </script>
 
     <script src="admin.js" onload="console.log('✅ admin.js загружен успешно')" onerror="console.error('❌ Ошибка загрузки admin.js')"></script>
