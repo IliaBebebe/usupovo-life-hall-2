@@ -1598,24 +1598,22 @@
             const password = document.getElementById('adminPassword').value;
             const errorElement = document.getElementById('loginError');
             
-            if (password === 'Жопа') {
+            // Пароль должен храниться в переменной окружения на сервере
+            // Временное решение: сложный пароль
+            const ADMIN_PASSWORD = 'Usupovo2026!Admin#Secure';
+            
+            if (password === ADMIN_PASSWORD) {
                 // Пароль верный - показываем админ-панель
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                
-                console.log('✅ Пароль верный, показываем админ-панель');
-                
+
                 // Инициализируем админ-панель если она еще не создана
                 if (!window.admin) {
-                    console.log('🔄 AdminPanel не создана, создаем...');
                     try {
                         window.admin = new AdminPanel();
-                        console.log('✅ AdminPanel создана после входа');
                     } catch (error) {
-                        console.error('❌ Ошибка создания AdminPanel после входа:', error);
+                        console.error('AdminPanel error:', error);
                     }
-                } else {
-                    console.log('✅ AdminPanel уже создана');
                 }
             } else {
                 // Пароль неверный - показываем ошибку

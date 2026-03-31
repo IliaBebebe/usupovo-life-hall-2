@@ -493,7 +493,10 @@ export default async function handler(req, res) {
     return res.status(404).json({ error: 'Endpoint not found' });
 
   } catch (error) {
+    // Логируем ошибку на сервере (видна только в логах Vercel)
     console.error('API Error:', error.message);
-    return res.status(500).json({ error: error.message });
+    
+    // Возвращаем общее сообщение об ошибке (без деталей)
+    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 }

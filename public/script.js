@@ -101,17 +101,17 @@ const App = {
         container.innerHTML = events.map(event => `
             <div class="event-card" data-event-id="${event.id}">
                 <div class="event-image">
-                    ${event.image_url ? 
-                        `<img src="${event.image_url.startsWith('http://') || event.image_url.startsWith('https://') ? event.image_url : 'images/' + event.image_url}" alt="${event.name}" 
-                              style="width:100%;height:100%;object-fit:cover;" 
-                              onerror="this.style.display='none'">` : 
+                    ${event.image_url ?
+                        `<img src="${event.image_url.startsWith('http://') || event.image_url.startsWith('https://') ? event.image_url : 'images/' + event.image_url}" alt="${this.escapeHtml(event.name)}"
+                              style="width:100%;height:100%;object-fit:cover;"
+                              onerror="this.style.display='none'">` :
                         '<div style="display:flex;align-items:center;justify-content:center;height:100%;">🎭</div>'
                     }
                 </div>
                 <div class="event-info">
-                    <h3>${event.name}</h3>
+                    <h3>${this.escapeHtml(event.name)}</h3>
                     <div class="event-date">${this.formatDate(event.date)}</div>
-                    <p>${event.description || 'Описание скоро появится...'}</p>
+                    <p>${this.escapeHtml(event.description) || 'Описание скоро появится...'}</p>
                     <button class="book-button" onclick="App.showEventDetails(${event.id})">
                         🎫 Купить билет
                     </button>
@@ -119,7 +119,15 @@ const App = {
             </div>
         `).join('');
     },
-    
+
+    // XSS защита - экранирование HTML
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
     formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU', {
