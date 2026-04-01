@@ -184,8 +184,10 @@ class AdminPanel {
             };
             
             // Если это админский эндпоинт и есть пароль, добавляем авторизацию
+            // Кодируем пароль в base64 для поддержки кириллицы
             if (endpoint.includes('/api/admin/') && adminPassword) {
-                headers['Authorization'] = `Bearer ${adminPassword}`;
+                const encodedPassword = btoa(unescape(encodeURIComponent(adminPassword)));
+                headers['Authorization'] = `Bearer ${encodedPassword}`;
             }
             
             const response = await fetch(endpoint, {

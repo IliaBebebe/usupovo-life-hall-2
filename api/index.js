@@ -119,6 +119,17 @@ function safeInteger(value, defaultValue = 0) {
 }
 
 /**
+ * Декодирует пароль из base64 (для поддержки кириллицы)
+ */
+function decodeAuthPassword(encoded) {
+  try {
+    return decodeURIComponent(escape(atob(encoded)));
+  } catch (e) {
+    return encoded; // Если не base64, возвращаем как есть
+  }
+}
+
+/**
  * CSRF проверка для админских эндпоинтов
  */
 function requireCSRF(req, res) {
@@ -144,30 +155,32 @@ function requireAdminAuth(req, res) {
   // Проверяем пароль из заголовка Authorization или query параметра
   const authHeader = req.headers.authorization || '';
   const queryPassword = req.query.password;
-  
+
   let providedPassword = null;
-  
+
   // Bearer token
   if (authHeader.startsWith('Bearer ')) {
-    providedPassword = authHeader.substring(7);
+    const encodedPassword = authHeader.substring(7);
+    // Декодируем пароль из base64 для поддержки кириллицы
+    providedPassword = decodeAuthPassword(encodedPassword);
   } else if (authHeader && !authHeader.startsWith('Bearer ')) {
     providedPassword = authHeader;
   } else if (queryPassword) {
     providedPassword = queryPassword;
   }
-  
+
   // Если ADMIN_PASSWORD не настроен, разрешаем доступ (для initial setup)
   if (!adminPassword) {
     console.warn('⚠️ ADMIN_PASSWORD not set - allowing access');
     return null;
   }
-  
+
   // Проверяем пароль
   if (providedPassword !== adminPassword) {
     // Silent Operator - возвращаем 404 вместо 401/403
     return res.status(404).json({ error: 'Endpoint not found' });
   }
-  
+
   return null;
 }
 
