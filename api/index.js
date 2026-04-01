@@ -26,22 +26,21 @@ function getPathSegments(path) {
 
 /**
  * Генерирует уникальный ID для билетов
- * Формат: TIK + timestamp + случайные символы
+ * Формат: B + timestamp + random (для совместимости со сканером)
  */
 function generateTicketId() {
-  const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substring(2, 8);
-  const randomPart2 = Math.random().toString(36).substring(2, 6);
-  return `TIK_${timestamp}_${randomPart}${randomPart2}`;
+  const timestamp = Date.now();
+  const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `B${timestamp}${randomPart}`;
 }
 
 /**
  * Генерирует уникальный ID для платежей
  */
 function generatePaymentId() {
-  const timestamp = Date.now().toString(36);
-  const randomPart = Math.random().toString(36).substring(2, 8);
-  return `PAY_${timestamp}_${randomPart}`;
+  const timestamp = Date.now();
+  const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `P${timestamp}${randomPart}`;
 }
 
 /**
