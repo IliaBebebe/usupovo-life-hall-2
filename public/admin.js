@@ -169,15 +169,27 @@ class AdminPanel {
     }
 
     // ==================== API МЕТОДЫ ====================
-    
+
     async apiRequest(endpoint, options = {}) {
         try {
             console.log(`📡 API запрос: ${endpoint}`, options);
+            
+            // Получаем пароль администратора из sessionStorage
+            const adminPassword = sessionStorage.getItem('adminPassword');
+            
+            // Добавляем авторизацию для админских эндпоинтов
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            };
+            
+            // Если это админский эндпоинт и есть пароль, добавляем авторизацию
+            if (endpoint.includes('/api/admin/') && adminPassword) {
+                headers['Authorization'] = `Bearer ${adminPassword}`;
+            }
+            
             const response = await fetch(endpoint, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...options.headers,
-                },
+                headers: headers,
                 ...options,
             });
 

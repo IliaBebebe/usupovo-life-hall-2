@@ -1597,7 +1597,7 @@
         async function checkAdminPassword() {
             const password = document.getElementById('adminPassword').value;
             const errorElement = document.getElementById('loginError');
-            
+
             try {
                 const response = await fetch('/api/admin/login', {
                     method: 'POST',
@@ -1613,7 +1613,9 @@
                     // Пароль верный - показываем админ-панель
                     document.getElementById('adminLogin').style.display = 'none';
                     document.getElementById('adminContent').style.display = 'block';
+                    // Сохраняем пароль для авторизованных запросов
                     sessionStorage.setItem('adminAuthenticated', 'true');
+                    sessionStorage.setItem('adminPassword', password);
 
                     // Инициализируем админ-панель если она еще не создана
                     if (!window.admin) {
@@ -1640,6 +1642,7 @@
         function logoutAdmin() {
             if (confirm('Вы уверены, что хотите выйти?')) {
                 sessionStorage.removeItem('adminAuthenticated');
+                sessionStorage.removeItem('adminPassword');
                 document.getElementById('adminLogin').style.display = 'flex';
                 document.getElementById('adminContent').style.display = 'none';
                 document.getElementById('adminPassword').value = '';
@@ -1660,7 +1663,7 @@
             if (sessionStorage.getItem('adminAuthenticated') === 'true') {
                 document.getElementById('adminLogin').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                
+
                 // Инициализируем админ-панель
                 if (!window.admin) {
                     try {
