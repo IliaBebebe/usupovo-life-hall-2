@@ -102,6 +102,14 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Попытки входа администратора (для rate limiting)
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+    id SERIAL PRIMARY KEY,
+    ip_address TEXT NOT NULL,
+    success BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==================== ВНЕШНИЕ КЛЮЧИ ====================
 
 ALTER TABLE seats 
@@ -133,3 +141,4 @@ CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
 CREATE INDEX IF NOT EXISTS idx_pending_bookings_expires ON pending_bookings(expires_at);
 CREATE INDEX IF NOT EXISTS idx_visitor_sessions_entry ON visitor_sessions(entry_time);
 CREATE INDEX IF NOT EXISTS idx_visitor_sessions_session ON visitor_sessions(session_id);
+CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_ip ON admin_login_attempts(ip_address, created_at);

@@ -3,7 +3,14 @@
  * Vercel Hobby Plan: максимум 12 serverless функций
  */
 
-const { sql } = require('./db.js');
+const { sql, validateOrigin, getClientIP } = require('./db.js');
+
+// Разрешенные домены для CSRF защиты
+const ALLOWED_DOMAINS = [
+  'usupovo-life-hall-2.vercel.app',
+  'localhost',
+  '127.0.0.1'
+];
 
 export const config = {
   api: {
@@ -17,6 +24,153 @@ function getPathSegments(path) {
   return Array.isArray(path) ? path : path.split('/').filter(s => s.length > 0);
 }
 
+/**
+ * Генерирует уникальный ID для билетов
+ * Формат: TIK + timestamp + случайные символы
+ */
+function generateTicketId() {
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2, 8);
+  const randomPart2 = Math.random().toString(36).substring(2, 6);
+  return `TIK_${timestamp}_${randomPart}${randomPart2}`;
+}
+
+/**
+ * Генерирует уникальный ID для платежей
+ */
+function generatePaymentId() {
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2, 8);
+  return `PAY_${timestamp}_${randomPart}`;
+}
+
+/**
+ * Валидация входных данных
+ */
+function validateInput(body, schema) {
+  const errors = [];
+  
+  for (const [field, rules] of Object.entries(schema)) {
+    const value = body[field];
+    
+    if (rules.required && (value === undefined || value === null || value === '')) {
+      errors.push(`Поле ${field} обязательно`);
+      continue;
+    }
+    
+    if (value === undefined || value === null || value === '') continue;
+    
+    if (rules.type === 'number') {
+      const num = Number(value);
+      if (isNaN(num)) {
+        errors.push(`Поле ${field} должно быть числом`);
+      } else if (rules.min !== undefined && num < rules.min) {
+        errors.push(`Поле ${field} должно быть не менее ${rules.min}`);
+      } else if (rules.max !== undefined && num > rules.max) {
+        errors.push(`Поле ${field} должно быть не более ${rules.max}`);
+      }
+    }
+    
+    if (rules.type === 'string' && typeof value !== 'string') {
+      errors.push(`Поле ${field} должно быть строкой`);
+    }
+    
+    if (rules.type === 'email' && typeof value === 'string') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        errors.push(`Поле ${field} должно быть корректным email`);
+      }
+    }
+    
+    if (rules.type === 'array' && !Array.isArray(value)) {
+      errors.push(`Поле ${field} должно быть массивом`);
+    }
+    
+    if (rules.maxLength && typeof value === 'string' && value.length > rules.maxLength) {
+      errors.push(`Поле ${field} не должно превышать ${rules.maxLength} символов`);
+    }
+  }
+  
+  return errors;
+}
+
+/**
+ * Санитизация строки (удаляет HTML теги)
+ */
+function sanitizeString(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/<[^>]*>?/gm, '').trim();
+}
+
+/**
+ * Безопасное приведение к числу
+ */
+function safeNumber(value, defaultValue = 0) {
+  const num = Number(value);
+  return isNaN(num) ? defaultValue : num;
+}
+
+/**
+ * Безопасное приведение к целому числу
+ */
+function safeInteger(value, defaultValue = 0) {
+  const num = parseInt(value, 10);
+  return isNaN(num) ? defaultValue : num;
+}
+
+/**
+ * CSRF проверка для админских эндпоинтов
+ */
+function requireCSRF(req, res) {
+  if (process.env.NODE_ENV !== 'production') {
+    return null; // В development пропускаем
+  }
+  
+  if (!validateOrigin(req, ALLOWED_DOMAINS)) {
+    const clientIP = getClientIP(req);
+    console.warn(`⚠️ CSRF blocked: Origin=${req.headers.origin || req.headers.referer || 'none'} IP=${clientIP}`);
+    return res.status(403).json({ error: 'Forbidden: Invalid origin' });
+  }
+  return null;
+}
+
+/**
+ * Проверка авторизации администратора (Silent Operator)
+ * Возвращает 404 если пароль не совпадает
+ */
+function requireAdminAuth(req, res) {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  
+  // Проверяем пароль из заголовка Authorization или query параметра
+  const authHeader = req.headers.authorization || '';
+  const queryPassword = req.query.password;
+  
+  let providedPassword = null;
+  
+  // Bearer token
+  if (authHeader.startsWith('Bearer ')) {
+    providedPassword = authHeader.substring(7);
+  } else if (authHeader && !authHeader.startsWith('Bearer ')) {
+    providedPassword = authHeader;
+  } else if (queryPassword) {
+    providedPassword = queryPassword;
+  }
+  
+  // Если ADMIN_PASSWORD не настроен, разрешаем доступ (для initial setup)
+  if (!adminPassword) {
+    console.warn('⚠️ ADMIN_PASSWORD not set - allowing access');
+    return null;
+  }
+  
+  // Проверяем пароль
+  if (providedPassword !== adminPassword) {
+    // Silent Operator - возвращаем 404 вместо 401/403
+    return res.status(404).json({ error: 'Endpoint not found' });
+  }
+  
+  return null;
+}
+
 export default async function handler(req, res) {
   const { method, body, query } = req;
   // Путь передается через query parameter path из vercel.json routes
@@ -24,6 +178,11 @@ export default async function handler(req, res) {
   const segments = getPathSegments(path);
 
   try {
+    // CSRF проверка для всех админских эндпоинтов
+    if (segments[0] === 'admin') {
+      const csrfError = requireCSRF(req, res);
+      if (csrfError) return csrfError;
+    }
     // ==================== PUBLIC EVENTS ====================
     if (segments[0] === 'events') {
       if (segments.length === 1 && method === 'GET') {
@@ -124,7 +283,7 @@ export default async function handler(req, res) {
         const { rows: catRows } = await sql`SELECT discount_percent FROM discount_categories WHERE id = ${parseInt(discountCategoryId)}`;
         if (catRows.length > 0) finalTotal = total - (total * catRows[0].discount_percent / 100);
       }
-      const bookingId = 'B' + Date.now();
+      const bookingId = generateTicketId();
       await sql`
         INSERT INTO tickets (id, event_id, seat_labels, customer_name, customer_email, customer_phone, total_amount, discount_category_id, booking_time)
         VALUES (${bookingId}, ${parseInt(eventId)}, ${seats.join(',')}, ${customerName}, ${customerEmail || null}, ${customerPhone}, ${Math.round(finalTotal)}, ${discountCategoryId || null}, NOW())
@@ -139,8 +298,8 @@ export default async function handler(req, res) {
     if (segments[0] === 'create-payment' && segments.length === 1 && method === 'POST') {
       // POST /api/create-payment
       const { eventId, seats, customer, total, discountCategoryId, paymentMethod = 'card' } = body;
-      const bookingId = 'B' + Date.now();
-      const paymentId = 'P' + Date.now();
+      const bookingId = generateTicketId();
+      const paymentId = generatePaymentId();
       const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
       await sql`
         INSERT INTO pending_bookings (payment_id, booking_id, event_id, seat_labels, customer_name, customer_email, customer_phone, total_amount, discount_category_id, payment_method, expires_at)
@@ -191,7 +350,29 @@ export default async function handler(req, res) {
       if (segments.length === 2 && method === 'POST') {
         // POST /api/admin/events
         console.log('Creating event with body:', body);
-        const { name, date, description, image_url, venue, duration } = body;
+        
+        // Валидация входных данных
+        const validationErrors = validateInput(body, {
+          name: { type: 'string', required: true, maxLength: 500 },
+          date: { type: 'string', required: true },
+          description: { type: 'string', maxLength: 5000 },
+          image_url: { type: 'string', maxLength: 1000 },
+          venue: { type: 'string', required: true, maxLength: 500 },
+          duration: { type: 'number', min: 30, max: 1440 }
+        });
+        
+        if (validationErrors.length > 0) {
+          return res.status(400).json({ error: validationErrors.join('; ') });
+        }
+        
+        // Санитизация строк
+        const name = sanitizeString(body.name);
+        const date = sanitizeString(body.date);
+        const description = body.description ? sanitizeString(body.description) : '';
+        const image_url = body.image_url ? sanitizeString(body.image_url) : 'default.jpg';
+        const venue = sanitizeString(body.venue);
+        const duration = body.duration ? safeInteger(body.duration, 120) : null;
+        
         if (!name || !date) return res.status(400).json({ error: 'Название и дата обязательны' });
         try {
           const { rows } = await sql`
@@ -260,6 +441,10 @@ export default async function handler(req, res) {
 
     // ==================== ADMIN: BOOKINGS ====================
     if (segments[0] === 'admin' && segments[1] === 'bookings') {
+      // Silent Operator: проверка авторизации
+      const authError = requireAdminAuth(req, res);
+      if (authError) return authError;
+
       if (segments.length === 2 && method === 'GET') {
         // GET /api/admin/bookings
         const { rows } = await sql`
@@ -310,14 +495,38 @@ export default async function handler(req, res) {
 
     // ==================== ADMIN: PROMOCODES ====================
     if (segments[0] === 'admin' && segments[1] === 'promocodes') {
+      // Silent Operator: проверка авторизации
+      const authError = requireAdminAuth(req, res);
+      if (authError) return authError;
+
       if (segments.length === 2 && method === 'GET') {
         const { rows } = await sql`SELECT * FROM promocodes ORDER BY id DESC`;
         return res.status(200).json({ success: true, promoCodes: rows });
       }
       if (segments.length === 2 && method === 'POST') {
         const { code, discount, max_uses, expiry_date, is_active = true } = body;
-        if (!code || !discount) return res.status(400).json({ success: false, message: 'Код и скидка обязательны' });
-        const { rows } = await sql`INSERT INTO promocodes (code, discount, max_uses, expiry_date, is_active) VALUES (${code.toUpperCase()}, ${parseInt(discount)}, ${max_uses || null}, ${expiry_date || null}, ${is_active}) RETURNING *`;
+        
+        // Валидация
+        const validationErrors = validateInput(body, {
+          code: { type: 'string', required: true, maxLength: 100 },
+          discount: { type: 'number', required: true, min: 1, max: 100 },
+          max_uses: { type: 'number', min: 1 },
+          expiry_date: { type: 'string' }
+        });
+        
+        if (validationErrors.length > 0) {
+          return res.status(400).json({ success: false, message: validationErrors.join('; ') });
+        }
+        
+        // Санитизация
+        const codeSanitized = sanitizeString(code).toUpperCase();
+        const discountSanitized = safeInteger(discount, 0);
+        
+        if (!codeSanitized || discountSanitized < 1 || discountSanitized > 100) {
+          return res.status(400).json({ success: false, message: 'Код и скидка (1-100) обязательны' });
+        }
+        
+        const { rows } = await sql`INSERT INTO promocodes (code, discount, max_uses, expiry_date, is_active) VALUES (${codeSanitized}, ${discountSanitized}, ${max_uses ? safeInteger(max_uses, null) : null}, ${expiry_date || null}, ${is_active}) RETURNING *`;
         return res.status(200).json({ success: true, message: 'Промокод создан', promoId: rows[0].id });
       }
       if (segments.length === 3 && method === 'PUT') {
@@ -335,6 +544,10 @@ export default async function handler(req, res) {
 
     // ==================== ADMIN: EXPORT ====================
     if (segments[0] === 'admin' && segments[1] === 'export' && segments.length === 2 && method === 'GET') {
+      // Silent Operator: проверка авторизации
+      const authError = requireAdminAuth(req, res);
+      if (authError) return authError;
+
       const tables = ['events', 'seats', 'tickets', 'pending_bookings', 'promocodes', 'discount_categories', 'visitor_sessions', 'settings'];
       const exportData = { version: '1.0', exportDate: new Date().toISOString(), tables: {} };
       for (const table of tables) {

@@ -194,5 +194,43 @@ async function initializeDatabase() {
 module.exports = {
   sql,
   checkConnection,
-  initializeDatabase
+  initializeDatabase,
+  /**
+   * CSRF защита - проверка Origin/Referer заголовков
+   * @param {Object} req - объект запроса
+   * @param {string[]} allowedDomains - список разрешенных доменов
+   * @returns {boolean} - true если запрос разрешен
+   */
+  validateOrigin(req, allowedDomains = []) {
+    const origin = req.headers.origin || req.headers.referer;
+    
+    if (!origin) {
+      // Если нет заголовка Origin/Referer, проверяем Host
+      const host = req.headers.host;
+      if (host) {
+        const protocol = process.env.VERCEL_ENV === 'production' ? 'https://' : 'http://';
+        const fullOrigin = protocol + host;
+        return allowedDomains.some(domain => fullOrigin.includes(domain));
+      }
+      // В development режиме разрешаем все запросы без origin
+      if (process.env.NODE_ENV !== 'production') {
+        return true;
+      }
+      return false;
+    }
+
+    // Проверяем, содержится ли разрешенный домен в origin
+    return allowedDomains.some(domain => origin.includes(domain));
+  },
+  /**
+   * Получает клиентский IP из запроса
+   * @param {Object} req - объект запроса
+   * @returns {string} - IP адрес
+   */
+  getClientIP(req) {
+    return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
+           req.headers['x-real-ip'] || 
+           req.socket?.remoteAddress || 
+           'unknown';
+  }
 };
