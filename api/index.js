@@ -190,13 +190,19 @@ export default async function handler(req, res) {
       }
       if (segments.length === 2 && method === 'POST') {
         // POST /api/admin/events
+        console.log('Creating event with body:', body);
         const { name, date, description, image_url, venue, duration } = body;
         if (!name || !date) return res.status(400).json({ error: 'Название и дата обязательны' });
-        const { rows } = await sql`
-          INSERT INTO events (name, date, description, image_url, venue, duration)
-          VALUES (${name}, ${date}, ${description || ''}, ${image_url || 'default.jpg'}, ${venue || ''}, ${duration || null}) RETURNING id
-        `;
-        return res.status(200).json({ success: true, eventId: rows[0].id, message: 'Мероприятие создано' });
+        try {
+          const { rows } = await sql`
+            INSERT INTO events (name, date, description, image_url, venue, duration)
+            VALUES (${name}, ${date}, ${description || ''}, ${image_url || 'default.jpg'}, ${venue || ''}, ${duration || null}) RETURNING id
+          `;
+          return res.status(200).json({ success: true, eventId: rows[0].id, message: 'Мероприятие создано' });
+        } catch (error) {
+          console.error('Error creating event:', error);
+          return res.status(500).json({ error: error.message || 'Ошибка при создании мероприятия' });
+        }
       }
       if (segments.length === 3 && method === 'PUT') {
         // PUT /api/admin/events/:id

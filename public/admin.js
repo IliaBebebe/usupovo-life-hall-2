@@ -1372,30 +1372,33 @@ class AdminPanel {
         }
 
         try {
-            // Создаем FormData для поддержки загрузки файлов
-            const formData = new FormData();
-            formData.append('name', eventName.value);
-            formData.append('date', eventDate.value.replace('T', ' ') + ':00');
-            formData.append('description', eventDescription ? eventDescription.value : '');
-            formData.append('venue', eventVenue.value);
-            formData.append('duration', eventDuration ? parseInt(eventDuration.value) || 120 : 120);
-            
-            // Если выбран файл, добавляем его
-            if (eventImageFile && eventImageFile.files.length > 0) {
-                formData.append('image', eventImageFile.files[0]);
-            }
-            
+            // Формируем данные для отправки
+            const eventData = {
+                name: eventName.value,
+                date: eventDate.value.replace('T', ' ') + ':00',
+                description: eventDescription ? eventDescription.value : '',
+                venue: eventVenue.value,
+                duration: eventDuration ? parseInt(eventDuration.value) || 120 : 120
+            };
+
             // Если указана ссылка на изображение, добавляем её
             if (eventImage && eventImage.value.trim()) {
-                formData.append('image_url', eventImage.value.trim());
+                eventData.image_url = eventImage.value.trim();
             }
 
             const response = await fetch('/api/admin/events', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventData)
             });
 
             const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || result.message || `HTTP ${response.status}`);
+            }
 
             if (result.success) {
                 this.showSuccess('Мероприятие создано!');
@@ -2249,13 +2252,22 @@ class AdminPanel {
     async loadVisitorChart(days = 30) {
         try {
             const chartData = await this.apiRequest(`/api/admin/visitor-stats/chart?days=${days}`);
-            
-            const ctx = document.getElementById('visitorChart');
-            if (!ctx) return;
+
+            const canvas = document.getElementById('visitorChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
 
             // Уничтожаем предыдущий график если есть
             if (this.visitorChart) {
                 this.visitorChart.destroy();
+                this.visitorChart = null;
+            }
+
+            // Проверяем, есть ли уже график на этом канвасе
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
             }
 
             const labels = chartData.map(item => {
