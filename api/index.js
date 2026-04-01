@@ -400,14 +400,46 @@ export default async function handler(req, res) {
       }
       if (segments.length === 3 && method === 'PUT') {
         // PUT /api/admin/events/:id
+        console.log('Updating event with body:', body);
+        
+        // Валидация
+        const validationErrors = validateInput(body, {
+          name: { type: 'string', required: true, maxLength: 500 },
+          date: { type: 'string', required: true },
+          description: { type: 'string', maxLength: 5000 },
+          image_url: { type: 'string', maxLength: 1000 },
+          venue: { type: 'string', required: true, maxLength: 500 },
+          duration: { type: 'number', min: 30, max: 1440 }
+        });
+        
+        if (validationErrors.length > 0) {
+          return res.status(400).json({ error: validationErrors.join('; ') });
+        }
+        
         const { name, date, description, image_url, venue, duration } = body;
         if (!name || !date) return res.status(400).json({ error: 'Название и дата обязательны' });
-        const result = await sql`
-          UPDATE events SET name = ${name}, date = ${date}, description = ${description || ''}, image_url = ${image_url || 'default.jpg'}, venue = ${venue || ''}, duration = ${duration || null}
-          WHERE id = ${parseInt(segments[2])}
-        `;
-        if (result.rowCount === 0) return res.status(404).json({ error: 'Мероприятие не найдено' });
-        return res.status(200).json({ success: true, message: 'Мероприятие обновлено' });
+        
+        try {
+          // Санитизация
+          const nameSanitized = sanitizeString(name);
+          const dateSanitized = sanitizeString(date);
+          const descriptionSanitized = description ? sanitizeString(description) : '';
+          const image_urlSanitized = image_url ? sanitizeString(image_url) : 'default.jpg';
+          const venueSanitized = sanitizeString(venue);
+          const durationInt = duration ? safeInteger(duration, 120) : null;
+          
+          const result = await sql`
+            UPDATE events SET name = ${nameSanitized}, date = ${dateSanitized}, description = ${descriptionSanitized || ''}, image_url = ${image_urlSanitized || 'default.jpg'}, venue = ${venueSanitized || ''}, duration = ${durationInt || null}
+            WHERE id = ${parseInt(segments[2])}
+          `;
+          
+          if (result.rowCount === 0) return res.status(404).json({ error: 'Мероприятие не найдено' });
+          console.log('Event updated:', segments[2]);
+          return res.status(200).json({ success: true, message: 'Мероприятие обновлено' });
+        } catch (error) {
+          console.error('Error updating event:', error.message);
+          return res.status(500).json({ error: error.message || 'Ошибка при обновлении мероприятия' });
+        }
       }
       if (segments.length === 3 && method === 'DELETE') {
         // DELETE /api/admin/events/:id
@@ -698,10 +730,43 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, promoCodes: rows });
       }
       if (segments.length === 2 && method === 'PUT') {
+        console.log('Updating promo code with body:', body);
+        
         const { code, discount, max_uses, expiry_date, is_active } = body;
-        const result = await sql`UPDATE promocodes SET code = ${code.toUpperCase()}, discount = ${parseInt(discount)}, max_uses = ${max_uses || null}, expiry_date = ${expiry_date || null}, is_active = ${is_active !== undefined ? is_active : true} WHERE id = ${parseInt(segments[1])}`;
-        if (result.rowCount === 0) return res.status(404).json({ error: 'Промокод не найден' });
-        return res.status(200).json({ success: true, message: 'Промокод обновлен' });
+        
+        // Валидация
+        const validationErrors = validateInput(body, {
+          code: { type: 'string', required: true, maxLength: 100 },
+          discount: { type: 'number', required: true, min: 1, max: 100 }
+        });
+        
+        if (validationErrors.length > 0) {
+          return res.status(400).json({ success: false, message: validationErrors.join('; ') });
+        }
+        
+        try {
+          const codeUpper = sanitizeString(code).toUpperCase();
+          const discountInt = safeInteger(discount, 0);
+          
+          if (discountInt < 1 || discountInt > 100) {
+            return res.status(400).json({ success: false, message: 'Скидка должна быть от 1 до 100' });
+          }
+          
+          const result = await sql`
+            UPDATE promocodes SET code = ${codeUpper}, discount = ${discountInt}, max_uses = ${max_uses ? safeInteger(max_uses, null) : null}, expiry_date = ${expiry_date || null}, is_active = ${is_active !== undefined ? is_active : true}
+            WHERE id = ${parseInt(segments[1])}
+          `;
+          
+          if (result.rowCount === 0) return res.status(404).json({ error: 'Промокод не найден' });
+          console.log('Promo code updated:', segments[1]);
+          return res.status(200).json({ success: true, message: 'Промокод обновлен' });
+        } catch (error) {
+          console.error('Error updating promo code:', error.message);
+          if (error.code === '23505') {
+            return res.status(400).json({ success: false, message: 'Промокод с таким кодом уже существует' });
+          }
+          return res.status(500).json({ success: false, message: 'Ошибка при обновлении промокода', error: error.message });
+        }
       }
       if (segments.length === 2 && method === 'DELETE') {
         const result = await sql`DELETE FROM promocodes WHERE id = ${parseInt(segments[1])}`;
