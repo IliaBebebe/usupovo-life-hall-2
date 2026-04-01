@@ -6,6 +6,7 @@ class AdminPanel {
         console.log('🔄 Конструктор AdminPanel вызван');
         try {
             this.visitorChart = null;
+            this.isSubmitting = false;
             this.init();
             console.log('✅ AdminPanel инициализирован успешно');
         } catch (error) {
@@ -1371,7 +1372,15 @@ class AdminPanel {
             return;
         }
 
+        // Защита от повторной отправки
+        if (this.isSubmitting) {
+            console.log('Уже выполняется отправка, игнорируем повторный вызов');
+            return;
+        }
+
         try {
+            this.isSubmitting = true;
+
             // Формируем данные для отправки
             const eventData = {
                 name: eventName.value,
@@ -1418,6 +1427,8 @@ class AdminPanel {
         } catch (error) {
             console.error('Ошибка создания мероприятия:', error);
             this.showError('❌ Ошибка создания мероприятия: ' + error.message);
+        } finally {
+            this.isSubmitting = false;
         }
     }
 
