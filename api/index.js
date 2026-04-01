@@ -664,10 +664,34 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: true, valid: true, promo: { ...promo, discountAmount, finalAmount: totalAmount - discountAmount } });
       }
       if (segments[1] === 'create' && segments.length === 2 && method === 'POST') {
+        console.log('Creating promo code with body:', body);
+        
         const { code, discount, max_uses, expiry_date, is_active = true } = body;
         if (!code || !discount) return res.status(400).json({ success: false, message: 'Код и скидка обязательны' });
-        const { rows } = await sql`INSERT INTO promocodes (code, discount, max_uses, expiry_date, is_active) VALUES (${code.toUpperCase()}, ${parseInt(discount)}, ${max_uses || null}, ${expiry_date || null}, ${is_active}) RETURNING *`;
-        return res.status(200).json({ success: true, message: 'Промокод создан', promoId: rows[0].id });
+        
+        try {
+          const codeUpper = code.toUpperCase();
+          const discountInt = parseInt(discount);
+          
+          if (discountInt < 1 || discountInt > 100) {
+            return res.status(400).json({ success: false, message: 'Скидка должна быть от 1 до 100' });
+          }
+          
+          const { rows } = await sql`
+            INSERT INTO promocodes (code, discount, max_uses, expiry_date, is_active)
+            VALUES (${codeUpper}, ${discountInt}, ${max_uses ? parseInt(max_uses) : null}, ${expiry_date || null}, ${is_active})
+            RETURNING *
+          `;
+          
+          console.log('Promo code created:', rows[0].id);
+          return res.status(200).json({ success: true, message: 'Промокод создан', promoId: rows[0].id });
+        } catch (error) {
+          console.error('Error creating promo code:', error.message);
+          if (error.code === '23505') { // Unique violation
+            return res.status(400).json({ success: false, message: 'Промокод с таким кодом уже существует' });
+          }
+          return res.status(500).json({ success: false, message: 'Ошибка при создании промокода', error: error.message });
+        }
       }
       if (segments[1] === 'all' && segments.length === 2 && method === 'GET') {
         const { rows } = await sql`SELECT * FROM promocodes ORDER BY id DESC`;
