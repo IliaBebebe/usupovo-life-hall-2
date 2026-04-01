@@ -49,6 +49,12 @@ class AdminPanel {
         if (createEventForm) {
             createEventForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                // Защита от повторной отправки
+                if (this.isSubmitting) {
+                    console.log('⚠️ Уже выполняется отправка мероприятия');
+                    return;
+                }
                 this.createEvent();
             });
             
@@ -918,8 +924,11 @@ class AdminPanel {
 
     async loadEventSeats(eventId) {
         const container = document.getElementById('seatsContainer');
-        
+
         if (!container) return;
+
+        // Всегда устанавливаем eventId при выборе мероприятия
+        container.dataset.eventId = eventId || '';
 
         if (!eventId) {
             container.innerHTML = '<div class="loading">Выберите мероприятие для управления местами</div>';
