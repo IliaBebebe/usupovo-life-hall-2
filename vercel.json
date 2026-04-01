@@ -8,7 +8,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://yandex.ru https://mc.yandex.ru; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://usupovo-life-hall-2.vercel.app https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://yandex.ru https://mc.yandex.ru; frame-src 'self' https://www.tinkoff.ru https://yandex.ru;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://yandex.ru https://mc.yandex.ru; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://usupovo-life-hall-2.vercel.app https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://yandex.ru https://mc.yandex.ru; frame-src 'self' https://www.tinkoff.ru https://yandex.ru; media-src 'self' blob:; camera-src 'self' blob: data:;"
         },
         {
           "key": "X-Content-Type-Options",

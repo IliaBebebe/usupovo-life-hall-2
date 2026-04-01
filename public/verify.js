@@ -293,19 +293,20 @@ class TicketVerifier {
     handleScannerError(error) {
         const scannerElement = document.getElementById('reader');
         const errorElement = document.getElementById('cameraError');
-        
+
         let errorMessage = 'Не удалось запустить камеру';
-        
-        if (error.name === 'AbortError' || error.message.includes('AbortError')) {
+        const errorMsg = error.message || error.toString() || '';
+
+        if (error.name === 'AbortError' || errorMsg.includes('AbortError')) {
             console.log('Сканер был прерван - это нормально');
             return;
-        } else if (error.message && error.message.includes('Permission')) {
+        } else if (errorMsg.includes('Permission') || errorMsg.includes('NotAllowedError')) {
             errorMessage = 'Доступ к камере запрещен. Разрешите доступ к камере в настройках браузера.';
-        } else if (error.message && error.message.includes('NotFound')) {
+        } else if (errorMsg.includes('NotFound')) {
             errorMessage = 'Камера не найдена. Убедитесь, что камера подключена и доступна.';
-        } else if (error.message && error.message.includes('NotSupported')) {
+        } else if (errorMsg.includes('NotSupported')) {
             errorMessage = 'Ваш браузер не поддерживает доступ к камере.';
-        } else if (error.message && error.message.includes('NotAllowedError')) {
+        } else if (errorMsg.includes('NotAllowedError')) {
             errorMessage = 'Доступ к камере запрещен. Разрешите доступ к камере в настройках браузера.';
         }
         
