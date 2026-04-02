@@ -799,10 +799,10 @@ class AdminPanel {
             <div class="seats-grid">
                 ${rows.map(([rowLabel, rowSeats]) => `
                     <div class="seat-row">
-                        <div class="row-label">${rowLabel}</div>
+                        <div class="row-label">${this.escapeHtml(rowLabel)}</div>
                         ${rowSeats.map(seat => `
                             <button class="seat seat-${seat.category === 'vip' ? 'vip' : 'standard'} seat-${seat.status || 'free'}"
-                                    title="${seat.seat_label} - ${this.getCategoryName(seat.category || 'standard')} - ${seat.price}₽"
+                                    title="${this.escapeHtml(seat.seat_label)} - ${this.getCategoryName(seat.category || 'standard')} - ${seat.price}₽"
                                     onclick="admin.editSeat(${seat.id}, '${this.escapeHtml(seat.seat_label)}', ${seat.price}, '${seat.category || 'standard'}', '${seat.status || 'free'}')">
                                 ${seat.price}
                             </button>
