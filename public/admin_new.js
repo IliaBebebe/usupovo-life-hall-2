@@ -703,6 +703,8 @@ class AdminPanel {
     // ==================== SEATS ====================
 
     async loadEventSeats(eventId) {
+        console.log('🔄 loadEventSeats вызван с eventId:', eventId);
+        
         if (!eventId) {
             const container = document.getElementById('seatsContainer');
             if (container) container.innerHTML = '<div class="loading">Выберите мероприятие</div>';
@@ -714,21 +716,37 @@ class AdminPanel {
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Загрузка мест...</div>';
-            // Используем /api/seats/event/:eventId (без admin)
-            const seats = await this.apiRequest(`/api/seats/event/${eventId}`);
-            this.renderSeatsGrid(seats || [], eventId);
+            
+            const url = `/api/seats/event/${eventId}`;
+            console.log('📡 Запрос мест:', url);
+            
+            const seats = await this.apiRequest(url);
+            
+            console.log('✅ Получено мест:', seats ? seats.length : 0, seats);
+            
+            if (!seats || seats.length === 0) {
+                container.innerHTML = '<div class="no-data">Мест пока нет. Создайте схему зала.</div>';
+                return;
+            }
+            
+            this.renderSeatsGrid(seats, eventId);
         } catch (error) {
-            console.error('Load seats error:', error);
+            console.error('❌ Load seats error:', error);
             const container = document.getElementById('seatsContainer');
             if (container) {
-                container.innerHTML = '<div class="error-message">Ошибка загрузки мест</div>';
+                container.innerHTML = '<div class="error-message">Ошибка загрузки мест: ' + error.message + '</div>';
             }
         }
     }
 
     renderSeatsGrid(seats, eventId) {
+        console.log('🔄 renderSeatsGrid вызван с мест:', seats ? seats.length : 0, seats);
+        
         const container = document.getElementById('seatsContainer');
-        if (!container) return;
+        if (!container) {
+            console.error('❌ Контейнер seatsContainer не найден');
+            return;
+        }
 
         if (!seats || seats.length === 0) {
             container.innerHTML = '<div class="no-data">Мест пока нет. Создайте схему зала.</div>';
@@ -737,9 +755,10 @@ class AdminPanel {
 
         // Group seats by row (используем seat_label вместо label)
         const rowsMap = new Map();
-        seats.forEach(seat => {
+        seats.forEach((seat, index) => {
+            console.log(`Seat ${index}:`, seat);
             if (!seat.seat_label) {
-                console.warn('Seat without seat_label:', seat);
+                console.warn('⚠️ Seat without seat_label:', seat);
                 return;
             }
             const rowLabel = seat.seat_label.charAt(0);
@@ -752,6 +771,8 @@ class AdminPanel {
         const rows = Array.from(rowsMap.entries()).sort((a, b) =>
             a[0].localeCompare(b[0])
         );
+        
+        console.log('📊 Рядов найдено:', rows.length, rows);
 
         let html = `
             <div class="seat-legend">
