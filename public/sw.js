@@ -1,4 +1,4 @@
-const CACHE_NAME = 'usupovo-v4';
+const CACHE_NAME = 'usupovo-v5';
 
 // Кэшируем только критически важные ресурсы
 const urlsToCache = [
@@ -45,22 +45,22 @@ self.addEventListener('activate', (event) => {
 // Обработка запросов - сначала сеть, потом кэш
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  
+
   // Игнорируем запросы не от нашего домена
   if (url.origin !== location.origin) {
-    return;
+    return; // Просто возвращаем undefined - браузер сам обработает
   }
-  
+
   // Игнорируем POST запросы (их нельзя кэшировать)
   if (event.request.method !== 'GET') {
-    return;
+    return; // Просто возвращаем undefined - браузер сам обработает
   }
-  
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
         // Если запрос успешный, кэшируем ответ
-        if (response.ok) {
+        if (response && response.ok) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
