@@ -916,6 +916,8 @@ class AdminPanel {
         const eventSelect = document.getElementById('eventSelect');
         const eventId = eventSelect.value;
 
+        console.log('🔧 createBulkSeats вызван, eventId:', eventId);
+
         if (!eventId) {
             this.showError('Выберите мероприятие');
             return;
@@ -928,23 +930,30 @@ class AdminPanel {
             vipRows: document.getElementById('vipRows').value.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n))
         };
 
+        console.log('📦 Конфигурация:', config);
+
         if (config.rows < 1 || config.rows > 20 || config.seatsPerRow < 1 || config.seatsPerRow > 20) {
             this.showError('Количество рядов и мест должно быть от 1 до 20');
             return;
         }
 
-        this.apiRequest(`/api/admin/events/${eventId}/seats/bulk`, {
+        const url = `/api/admin/events/${eventId}/seats/bulk`;
+        console.log('📡 Запрос создания мест:', url);
+
+        this.apiRequest(url, {
             method: 'POST',
             body: JSON.stringify(config)
         }).then(result => {
+            console.log('✅ Результат создания мест:', result);
             if (result.success) {
                 this.showSuccess('Схема зала создана!');
                 this.loadEventSeats(eventId);
             } else {
+                console.error('❌ Ошибка в ответе API:', result);
                 this.showError('Ошибка: ' + result.message);
             }
         }).catch(error => {
-            console.error('Create bulk seats error:', error);
+            console.error('❌ Create bulk seats error:', error);
             this.showError('Ошибка создания схемы зала');
         });
     }
