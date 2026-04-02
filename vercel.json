@@ -45,23 +45,6 @@
     {
       "source": "/favicon.ico",
       "destination": "/images/logo-small.png"
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "header",
-          "key": "accept",
-          "value": "text/html"
-        }
-      ],
-      "destination": "/404.html",
-      "missing": [
-        {
-          "type": "file",
-          "path": "/:path*"
-        }
-      ]
     }
   ],
   "regions": ["fra1"]
