@@ -44,12 +44,25 @@
     },
     {
       "source": "/favicon.ico",
-      "destination": "/public/images/logo-small.png"
+      "destination": "/images/logo-small.png"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": "text/html"
+        }
+      ],
+      "destination": "/404.html",
+      "missing": [
+        {
+          "type": "file",
+          "path": "/:path*"
+        }
+      ]
     }
   ],
-  "errorPages": {
-    "404": "/404.html",
-    "500": "/500.html"
-  },
   "regions": ["fra1"]
 }
