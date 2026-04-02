@@ -47,5 +47,9 @@
       "destination": "/public/images/logo-small.png"
     }
   ],
+  "errorPages": {
+    "404": "/404.html",
+    "500": "/500.html"
+  },
   "regions": ["fra1"]
 }

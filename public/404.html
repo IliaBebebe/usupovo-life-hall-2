@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#E7E5E4">
+    <title>404 - Страница не найдена | Usupovo Life Hall</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --surface: #E7E5E4;
+            --surface-light: #EFEDEB;
+            --surface.dark: #D1CFC9;
+            --text: #1E2938;
+            --text-light: #6B7280;
+            --text-muted: #9CA3AF;
+            --primary: #006666;
+            --danger: #FF2157;
+            
+            --shadow-light: -6px -6px 16px rgba(255, 255, 255, 0.7);
+            --shadow-dark: 6px 6px 16px rgba(0, 0, 0, 0.12);
+            --shadow-float: 8px 8px 24px rgba(0, 0, 0, 0.15), -8px -8px 24px rgba(255, 255, 255, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--surface);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .error-container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 
+                -3px -3px 8px rgba(255, 255, 255, 0.7),
+                3px 3px 8px rgba(0, 0, 0, 0.15);
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        .error-message {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--surface);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            box-shadow: 
+                -6px -6px 16px rgba(255, 255, 255, 0.7),
+                6px 6px 16px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            box-shadow: 
+                -8px -8px 24px rgba(255, 255, 255, 0.8),
+                8px 8px 24px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            box-shadow: 
+                inset 4px 4px 8px rgba(0, 0, 0, 0.1),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #005555;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 
+                -6px -6px 16px rgba(255, 255, 255, 0.7),
+                6px 6px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 
+                -6px -6px 16px rgba(255, 255, 255, 0.7),
+                6px 6px 16px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-float);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 600px) {
+            .error-code {
+                font-size: 5rem;
+            }
+
+            .error-title {
+                font-size: 1.5rem;
+            }
+
+            .error-message {
+                font-size: 0.875rem;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <img src="/images/logo-big.png" alt="Usupovo Life Hall" class="logo" onerror="this.style.display='none'">
+        
+        <span class="error-icon">🎭</span>
+        
+        <h1 class="error-code">404</h1>
+        
+        <h2 class="error-title">Страница не найдена</h2>
+        
+        <p class="error-message">
+            Похоже, вы заблудились в нашем концертном зале.<br>
+            Такой страницы не существует или она была перемещена.
+        </p>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn btn-primary">
+                🏠 На главную
+            </a>
+            <a href="/admin_new.html" class="btn">
+                🔐 Админ-панель
+            </a>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎵</div>
+                <div class="feature-text">Концерты</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎟️</div>
+                <div class="feature-text">Билеты</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📍</div>
+                <div class="feature-text">Домодедово</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Логирование попытки доступа к несуществующей странице
+        console.log('404 Error - Page not found:', window.location.pathname);
+        
+        // Отправка аналитики (если есть)
+        if (window.location.pathname !== '/404.html') {
+            fetch('/api/analytics/404', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    path: window.location.pathname,
+                    referrer: document.referrer || 'direct'
+                })
+            }).catch(() => {});
+        }
+    </script>
+</body>
+</html>
