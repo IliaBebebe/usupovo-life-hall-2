@@ -5,24 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#E7E5E4">
     <title>500 - Ошибка сервера | Usupovo Life Hall</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
             --surface: #E7E5E4;
-            --surface.light: #EFEDEB;
-            --surface.dark: #D1CFC9;
+            --surface-light: #EFEDEB;
+            --surface-dark: #D1CFC9;
             --text: #1E2938;
             --text-light: #6B7280;
             --text-muted: #9CA3AF;
             --primary: #006666;
             --danger: #FF2157;
-            --info: #3498db;
-            
+
             --shadow-light: -6px -6px 16px rgba(255, 255, 255, 0.7);
             --shadow-dark: 6px 6px 16px rgba(0, 0, 0, 0.12);
             --shadow-float: 8px 8px 24px rgba(0, 0, 0, 0.15), -8px -8px 24px rgba(255, 255, 255, 0.8);
@@ -55,77 +54,58 @@
             font-size: 8rem;
             font-weight: 700;
             color: var(--danger);
-            text-shadow: 
+            text-shadow:
                 -3px -3px 8px rgba(255, 255, 255, 0.7),
                 3px 3px 8px rgba(0, 0, 0, 0.15);
             margin-bottom: 1rem;
             line-height: 1;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
         }
 
         .error-title {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 600;
             color: var(--text);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .error-message {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-light);
-            margin-bottom: 2.5rem;
-            line-height: 1.8;
-        }
-
-        .error-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            display: block;
-            animation: shake 0.5s ease-in-out;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-10deg); }
-            75% { transform: rotate(10deg); }
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 1rem 2rem;
+            padding: 0.875rem 1.75rem;
             background: var(--surface);
             color: var(--primary);
             border: 2px solid var(--primary);
             border-radius: 12px;
             font-family: 'Space Mono', monospace;
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            box-shadow: 
+            box-shadow:
                 -6px -6px 16px rgba(255, 255, 255, 0.7),
                 6px 6px 16px rgba(0, 0, 0, 0.12);
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .btn:hover {
-            box-shadow: 
+            box-shadow:
                 -8px -8px 24px rgba(255, 255, 255, 0.8),
                 8px 8px 24px rgba(0, 0, 0, 0.15);
             transform: translateY(-2px);
         }
 
         .btn:active {
-            box-shadow: 
+            box-shadow:
                 inset 4px 4px 8px rgba(0, 0, 0, 0.1),
                 inset -4px -4px 8px rgba(255, 255, 255, 0.9);
             transform: translateY(0);
@@ -140,56 +120,20 @@
             background: #005555;
         }
 
-        .logo {
-            width: 80px;
-            height: 80px;
+        .logo-container {
             margin-bottom: 2rem;
-            border-radius: 16px;
-            box-shadow: 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            max-width: 300px;
+            height: auto;
+            box-shadow:
                 -6px -6px 16px rgba(255, 255, 255, 0.7),
                 6px 6px 16px rgba(0, 0, 0, 0.12);
-        }
-
-        .status-card {
-            background: var(--surface);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 
-                -6px -6px 16px rgba(255, 255, 255, 0.7),
-                6px 6px 16px rgba(0, 0, 0, 0.12);
-            margin-top: 2rem;
-            border-left: 4px solid var(--info);
-        }
-
-        .status-card h3 {
-            color: var(--text);
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-        }
-
-        .status-card p {
-            color: var(--text-light);
-            font-size: 0.875rem;
-            line-height: 1.8;
-            text-align: left;
-        }
-
-        .tech-info {
-            background: var(--surface.light);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-align: left;
-            font-family: 'Space Mono', monospace;
-            box-shadow: 
-                inset 4px 4px 8px rgba(0, 0, 0, 0.08),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.9);
-        }
-
-        .retry-btn {
-            margin-top: 1.5rem;
+            border-radius: 12px;
         }
 
         @media (max-width: 600px) {
@@ -198,69 +142,45 @@
             }
 
             .error-title {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
 
             .error-message {
                 font-size: 0.875rem;
+            }
+
+            .logo {
+                max-width: 200px;
             }
         }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <img src="/images/logo-big.png" alt="Usupovo Life Hall" class="logo" onerror="this.style.display='none'">
-        
-        <span class="error-icon">⚡</span>
-        
-        <h1 class="error-code">500</h1>
-        
-        <h2 class="error-title">Внутренняя ошибка сервера</h2>
-        
-        <p class="error-message">
-            Что-то пошло не на нашей стороне.<br>
-            Мы уже работаем над исправлением проблемы.
-        </p>
-        
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-            <a href="/" class="btn btn-primary">
-                🏠 На главную
-            </a>
-            <button class="btn retry-btn" onclick="location.reload()">
-                🔄 Обновить
-            </button>
+        <div class="logo-container">
+            <img src="/images/logo-big.png" alt="Usupovo Life Hall" class="logo" onerror="this.style.display='none'">
         </div>
 
-        <div class="status-card">
-            <h3>🔧 Что происходит?</h3>
-            <p>
-                Наша серверная инфраструктура временно недоступна. 
-                Это может быть связано с техническими работами или непредвиденной ошибкой.
-            </p>
-            <p style="margin-top: 1rem;">
-                Пожалуйста, попробуйте обновить страницу через несколько минут.
-            </p>
-            
-            <div class="tech-info">
-                <strong>Error Code:</strong> INTERNAL_SERVER_ERROR<br>
-                <strong>Status:</strong> 500<br>
-                <strong>Timestamp:</strong> <span id="timestamp"></span>
-            </div>
+        <h1 class="error-code">500</h1>
+
+        <h2 class="error-title">Ошибка сервера</h2>
+
+        <p class="error-message">
+            Внутренняя ошибка сервера. Попробуйте обновить страницу позже.
+        </p>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="/" class="btn btn-primary">
+                На главную
+            </a>
+            <button class="btn" onclick="location.reload()">
+                Обновить
+            </button>
         </div>
     </div>
 
     <script>
         console.log('500 Error - Internal server error:', window.location.pathname);
-        
-        // Установка временной метки
-        document.getElementById('timestamp').textContent = new Date().toLocaleString('ru-RU');
-        
-        // Авто-обновление через 30 секунд
-        setTimeout(() => {
-            if (confirm('Прошло 30 секунд. Попробовать обновить страницу?')) {
-                location.reload();
-            }
-        }, 30000);
     </script>
 </body>
 </html>
