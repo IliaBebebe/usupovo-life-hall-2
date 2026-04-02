@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Админ-панель">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#E7E5E4">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <link rel="manifest" href="/admin-new-manifest.json">
+    <title>Админ-панель - Usupovo Life Hall</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="toast.js"></script>
+    <style>
+        /* ============================================
+           NEUMORPHISM DESIGN SYSTEM
+           Based on neumorphism-SKILL.md
+           ============================================ */
+        
+        :root {
+            /* Color Palette */
+            --primary: #006666;
+            --secondary: #F1F2F5;
+            --success: #00A63D;
+            --warning: #FE9900;
+            --danger: #FF2157;
+            --info: #3498db;
+            
+            /* Surface Colors */
+            --surface: #E7E5E4;
+            --surface-light: #EFEDEB;
+            --surface.dark: #D1CFC9;
+            
+            /* Text Colors */
+            --text: #1E2938;
+            --text-light: #6B7280;
+            --text-muted: #9CA3AF;
+            
+            /* Shadows for Neumorphism */
+            --shadow-light: -6px -6px 16px rgba(255, 255, 255, 0.7);
+            --shadow-dark: 6px 6px 16px rgba(0, 0, 0, 0.12);
+            --shadow-inner: inset 4px 4px 8px rgba(0, 0, 0, 0.08), inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+            --shadow-float: 8px 8px 24px rgba(0, 0, 0, 0.15), -8px -8px 24px rgba(255, 255, 255, 0.8);
+            --shadow-pressed: inset 6px 6px 12px rgba(0, 0, 0, 0.1), inset -6px -6px 12px rgba(255, 255, 255, 0.9);
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            /* Typography */
+            --font-primary: 'Space Mono', monospace;
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+            --font-size-4xl: 2.5rem;
+        }
+
+        /* ============================================
+           BASE STYLES
+           ============================================ */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: var(--surface);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Prevent text selection on mobile */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+        }
+
+        input, textarea, select {
+            user-select: text;
+        }
+
+        /* Performance optimization */
+        .stat-card, .promo-card, .table-container {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        /* ============================================
+           LOGIN SCREEN - NEUMORPHIC
+           ============================================ */
+        
+        .admin-login {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .login-form {
+            background: var(--surface);
+            padding: var(--space-2xl);
+            border-radius: var(--radius-xl);
+            text-align: center;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: var(--shadow-float);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .login-form img {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: var(--space-lg);
+            border-radius: var(--radius-md);
+        }
+
+        .login-form h2 {
+            margin-bottom: var(--space-xl);
+            color: var(--text);
+            font-size: var(--font-size-2xl);
+            font-weight: 700;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: var(--space-md) var(--space-lg);
+            margin-bottom: var(--space-xl);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            text-align: center;
+            background: var(--surface);
+            box-shadow: var(--shadow-inner);
+            color: var(--text);
+            font-family: var(--font-primary);
+            transition: all 0.3s ease;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.12), inset -6px -6px 12px rgba(255, 255, 255, 0.95);
+        }
+
+        .login-form input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .login-form button {
+            background: var(--surface);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: var(--space-md) var(--space-xl);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            font-weight: 700;
+            width: 100%;
+            font-family: var(--font-primary);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-form button:hover {
+            box-shadow: var(--shadow-float);
+            transform: translateY(-2px);
+        }
+
+        .login-form button:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: var(--danger);
+            margin-top: var(--space-md);
+            font-weight: 700;
+            display: none;
+            font-size: var(--font-size-sm);
+        }
+
+        #adminContent {
+            display: none;
+        }
+
+        /* ============================================
+           HEADER - NEUMORPHIC
+           ============================================ */
+        
+        .admin-header {
+            background: var(--surface);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-dark);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-header-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .logo-img {
+            height: 48px;
+            width: 48px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+        }
+
+        .admin-header h1 {
+            font-size: var(--font-size-lg);
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        #currentTime {
+            font-size: var(--font-size-sm);
+            color: var(--text-light);
+            background: var(--surface);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-inner);
+        }
+
+        /* ============================================
+           NAVIGATION - NEUMORPHIC
+           ============================================ */
+        
+        .admin-nav {
+            background: var(--surface);
+            padding: var(--space-md) var(--space-xl);
+            display: flex;
+            gap: var(--space-sm);
+            position: sticky;
+            top: 76px;
+            z-index: 99;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-nav::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .admin-nav::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: var(--radius-full);
+        }
+
+        .admin-nav::-webkit-scrollbar-thumb {
+            background: var(--surface.dark);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-inner);
+        }
+
+        .admin-nav button {
+            background: var(--surface);
+            border: none;
+            color: var(--text-light);
+            padding: var(--space-sm) var(--space-md);
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav button:hover {
+            color: var(--primary);
+            box-shadow: var(--shadow-float);
+            transform: translateY(-2px);
+        }
+
+        .admin-nav button.active {
+            color: var(--primary);
+            box-shadow: var(--shadow-pressed);
+            background: var(--surface.dark);
+        }
+
+        .admin-nav button.ticket-checker {
+            color: var(--success);
+            border-left: 2px solid var(--success);
+            margin-left: auto;
+        }
+
+        .admin-nav button.ticket-checker:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .admin-nav button.logout-btn {
+            color: var(--danger);
+            border-left: 2px solid var(--danger);
+        }
+
+        .admin-nav button.logout-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ============================================
+           MAIN CONTENT
+           ============================================ */
+        
+        .admin-content {
+            padding: var(--space-xl);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--text);
+            margin-bottom: var(--space-xl);
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            display: inline-block;
+            padding-bottom: var(--space-sm);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        h3 {
+            color: var(--text);
+            margin-bottom: var(--space-lg);
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+        }
+
+        /* ============================================
+           STATS GRID - NEUMORPHIC CARDS
+           ============================================ */
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-float);
+        }
+
+        .stat-number {
+            font-size: var(--font-size-4xl);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--space-sm);
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: var(--font-size-sm);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============================================
+           TABLES - NEUMORPHIC
+           ============================================ */
+        
+        .table-container {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            overflow: hidden;
+            margin-bottom: var(--space-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--surface);
+            color: var(--text);
+            font-weight: 700;
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: var(--space-lg);
+            text-align: left;
+            border-bottom: 2px solid var(--surface.dark);
+        }
+
+        td {
+            padding: var(--space-md) var(--space-lg);
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--text);
+            font-size: var(--font-size-sm);
+        }
+
+        tr:hover {
+            background: var(--surface.light);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 166, 61, 0.3);
+        }
+
+        .status-used {
+            background: var(--info);
+            color: white;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .status-cancelled {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 2px 8px rgba(255, 33, 87, 0.3);
+        }
+
+        .status-past {
+            background: var(--text-muted);
+            color: white;
+            box-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+        }
+
+        .status-upcoming {
+            background: var(--warning);
+            color: white;
+            box-shadow: 0 2px 8px rgba(254, 153, 0, 0.3);
+        }
+
+        /* ============================================
+           BUTTONS - NEUMORPHIC
+           ============================================ */
+        
+        .btn {
+            padding: var(--space-sm) var(--space-lg);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            font-weight: 700;
+            font-family: var(--font-primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin: var(--space-xs);
+            background: var(--surface);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-sm {
+            padding: var(--space-xs) var(--space-sm);
+            font-size: var(--font-size-xs);
+        }
+
+        .btn:hover {
+            box-shadow: var(--shadow-float);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            box-shadow: var(--shadow-pressed);
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .btn-success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-info {
+            color: var(--info);
+            border: 2px solid var(--info);
+        }
+
+        .btn-info:hover {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-warning {
+            color: var(--warning);
+            border: 2px solid var(--warning);
+        }
+
+        .btn-warning:hover {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-secondary {
+            color: var(--text-light);
+            border: 2px solid var(--text-muted);
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-muted);
+            color: white;
+        }
+
+        /* ============================================
+           FORMS - NEUMORPHIC
+           ============================================ */
+        
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-weight: 700;
+            color: var(--text);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: var(--space-md);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-base);
+            font-family: var(--font-primary);
+            background: var(--surface);
+            box-shadow: var(--shadow-inner);
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            box-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.12), inset -6px -6px 12px rgba(255, 255, 255, 0.95);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-group small {
+            color: var(--text-muted);
+            font-size: var(--font-size-xs);
+            display: block;
+            margin-top: var(--space-xs);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            cursor: pointer;
+            font-size: var(--font-size-base);
+            color: var(--text);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        /* ============================================
+           SEAT MAP - NEUMORPHIC
+           ============================================ */
+        
+        .seats-controls {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+        }
+
+        .seat-legend {
+            display: flex;
+            gap: var(--space-xl);
+            justify-content: center;
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--radius-sm);
+            border: none;
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+        }
+
+        .legend-standard { background: var(--success); }
+        .legend-vip { background: var(--warning); }
+        .legend-occupied { background: var(--danger); }
+        .legend-blocked { background: var(--text-muted); }
+
+        .stage {
+            background: linear-gradient(135deg, var(--danger), #c0392b);
+            color: white;
+            padding: var(--space-lg) var(--space-2xl);
+            border-radius: var(--radius-lg);
+            display: inline-block;
+            font-weight: 700;
+            font-size: var(--font-size-lg);
+            margin: var(--space-xl) 0;
+            box-shadow: var(--shadow-float);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .seats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .seat-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .row-label {
+            font-weight: 700;
+            color: var(--text);
+            min-width: 50px;
+            text-align: center;
+            font-size: var(--font-size-sm);
+            background: var(--surface);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+        }
+
+        .seat {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            font-family: var(--font-primary);
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+        }
+
+        .seat:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-float);
+        }
+
+        .seat-standard {
+            background: var(--success);
+            color: white;
+        }
+
+        .seat-vip {
+            background: var(--warning);
+            color: white;
+        }
+
+        .seat-occupied {
+            background: var(--danger);
+            color: white;
+            cursor: not-allowed;
+            box-shadow: var(--shadow-pressed);
+        }
+
+        .seat-blocked {
+            background: var(--text-muted);
+            color: white;
+            cursor: not-allowed;
+            box-shadow: var(--shadow-pressed);
+        }
+
+        .seat-editor {
+            background: var(--surface);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            margin-top: var(--space-xl);
+            border: 2px solid var(--primary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        /* ============================================
+           MODALS - NEUMORPHIC
+           ============================================ */
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: var(--space-xl);
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-float);
+            max-width: 640px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalAppear 0.4s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9) translateY(-30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 2px solid var(--surface.dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface);
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        }
+
+        .modal-title {
+            color: var(--text);
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: var(--surface);
+            border: none;
+            color: var(--text);
+            font-size: var(--font-size-xl);
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            box-shadow: var(--shadow-float);
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: var(--space-xl);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .info-item label {
+            font-weight: 700;
+            color: var(--text-light);
+            font-size: var(--font-size-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ============================================
+           PROMOCODES - NEUMORPHIC
+           ============================================ */
+        
+        .promos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-md);
+        }
+
+        .promo-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .promo-card:hover {
+            box-shadow: var(--shadow-float);
+            transform: translateY(-4px);
+        }
+
+        .promo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--surface.dark);
+        }
+
+        .promo-header h4 {
+            margin: 0;
+            font-family: var(--font-primary);
+            font-size: var(--font-size-lg);
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .promo-status {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+        }
+
+        .promo-status.active {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 166, 61, 0.3);
+        }
+
+        .promo-status.inactive {
+            background: var(--text-muted);
+            color: white;
+            box-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+        }
+
+        .promo-details p {
+            margin: var(--space-sm) 0;
+            font-size: var(--font-size-sm);
+            color: var(--text);
+        }
+
+        .promo-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+            padding-top: var(--space-md);
+            border-top: 2px solid var(--surface.dark);
+        }
+
+        /* ============================================
+           LOADING & EMPTY STATES
+           ============================================ */
+        
+        .loading {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-light);
+            font-size: var(--font-size-base);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ============================================
+           DASHBOARD GRID
+           ============================================ */
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: var(--space-md) var(--space-md);
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+
+            .admin-header-title {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .logo-img {
+                height: 40px;
+                width: 40px;
+            }
+
+            .admin-header h1 {
+                font-size: var(--font-size-base);
+            }
+
+            #currentTime {
+                font-size: var(--font-size-xs);
+                width: 100%;
+                text-align: center;
+            }
+
+            .admin-nav {
+                padding: var(--space-sm) var(--space-md);
+                flex-wrap: nowrap;
+                gap: var(--space-sm);
+                top: 120px;
+            }
+
+            .admin-nav button {
+                flex-shrink: 0;
+                padding: var(--space-sm) var(--space-md);
+                font-size: var(--font-size-xs);
+                min-height: 44px;
+                min-width: max-content;
+            }
+
+            .admin-nav button.ticket-checker,
+            .admin-nav button.logout-btn {
+                margin-left: 0;
+            }
+
+            .admin-content {
+                padding: var(--space-md) var(--space-sm);
+            }
+
+            h2 {
+                font-size: var(--font-size-2xl);
+                margin-bottom: var(--space-lg);
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .stat-card {
+                padding: var(--space-lg) var(--space-md);
+            }
+
+            .stat-number {
+                font-size: var(--font-size-3xl);
+            }
+
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 700px;
+            }
+
+            th, td {
+                padding: var(--space-sm) var(--space-sm);
+                font-size: var(--font-size-xs);
+            }
+
+            .promos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .seat {
+                width: 40px;
+                height: 40px;
+                font-size: var(--font-size-xs);
+            }
+
+            .login-form {
+                padding: var(--space-lg);
+                margin: var(--space-md);
+            }
+
+            .btn {
+                padding: var(--space-sm) var(--space-md);
+                font-size: var(--font-size-xs);
+                width: 100%;
+                margin: var(--space-xs) 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-nav {
+                gap: var(--space-xs);
+                padding: var(--space-sm);
+            }
+
+            .admin-nav button {
+                padding: var(--space-xs) var(--space-sm);
+                font-size: var(--font-size-xs);
+                min-height: 44px;
+            }
+
+            .stat-card {
+                padding: var(--space-md);
+            }
+
+            .stat-number {
+                font-size: var(--font-size-2xl);
+            }
+
+            h2 {
+                font-size: var(--font-size-xl);
+            }
+
+            .dashboard-grid,
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .seat {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        /* iOS Safe Area */
+        @supports (padding: max(0px)) {
+            .admin-content {
+                padding-left: max(var(--space-sm), env(safe-area-inset-left));
+                padding-right: max(var(--space-sm), env(safe-area-inset-right));
+            }
+
+            .admin-header {
+                padding-left: max(var(--space-md), env(safe-area-inset-left));
+                padding-right: max(var(--space-md), env(safe-area-inset-right));
+                padding-top: max(var(--space-md), env(safe-area-inset-top));
+            }
+
+            .admin-nav {
+                padding-left: max(var(--space-md), env(safe-area-inset-left));
+                padding-right: max(var(--space-md), env(safe-area-inset-right));
+            }
+        }
+
+        @media screen and (display-mode: standalone) {
+            .admin-nav {
+                padding-top: max(var(--space-sm), env(safe-area-inset-top));
+            }
+
+            .admin-header {
+                padding-top: max(var(--space-md), env(safe-area-inset-top));
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .admin-nav button {
+                min-height: 48px;
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .admin-nav button:active {
+                background: var(--surface.dark);
+                transform: scale(0.98);
+            }
+
+            .btn:active,
+            .modal-close:active {
+                transform: scale(0.98);
+            }
+        }
+
+        /* Mobile cards */
+        .mobile-cards {
+            display: none;
+        }
+
+        .mobile-card {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            box-shadow: var(--shadow-light), var(--shadow-dark);
+        }
+
+        .mobile-card strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: var(--space-sm);
+            font-size: var(--font-size-base);
+            font-weight: 700;
+        }
+
+        .mobile-card div {
+            margin-bottom: var(--space-xs);
+            font-size: var(--font-size-sm);
+            color: var(--text);
+        }
+
+        .mobile-card .action-buttons {
+            margin-top: var(--space-md);
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        /* Category badges */
+        .category-badge {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-xs);
+            font-weight: 700;
+            background: var(--info);
+            color: white;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .category-discount {
+            background: var(--success);
+            box-shadow: 0 2px 8px rgba(0, 166, 61, 0.3);
+        }
+
+        .category-inactive {
+            background: var(--text-muted);
+            box-shadow: 0 2px 8px rgba(156, 163, 175, 0.3);
+        }
+
+        /* Form grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="adminLogin" class="admin-login">
+        <div class="login-form">
+            <img src="/images/logo-big.png" alt="Логотип Usupovo Life Hall" class="admin-login-logo">
+            <h2>🔐 Вход в админ-панель</h2>
+            <input type="password" id="adminPassword" placeholder="Введите пароль">
+            <button onclick="checkAdminPassword()">Войти</button>
+            <div id="loginError" class="error-message">❌ Неверный пароль</div>
+        </div>
+    </div>
+
+    <!-- Main Admin Content -->
+    <div id="adminContent">
+        <header class="admin-header">
+            <div class="admin-header-title">
+                <img src="/images/logo-small.png" alt="Логотип" class="logo-img">
+                <h1>🎭 Usupovo Life Hall - Админ-панель</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-md);">
+                <button id="notificationBtn" class="btn btn-sm btn-info" style="display: none;" title="Включить уведомления" onclick="admin.requestNotificationPermission()">
+                    🔔
+                </button>
+                <div id="currentTime"></div>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <button onclick="showSection('dashboard')" class="active">📊 Статистика</button>
+            <button onclick="showSection('bookings')">🎫 Бронирования</button>
+            <button onclick="showSection('events')">📅 Мероприятия</button>
+            <button onclick="showSection('newEvent')">➕ Новое</button>
+            <button onclick="showSection('seatsManagement')">💺 Места</button>
+            <button onclick="showSection('promoCodes')">🎁 Промокоды</button>
+            <button onclick="showSection('discountCategories')">🎫 Льготы</button>
+            <button onclick="openTicketChecker()" class="ticket-checker">🎫 Билетёр</button>
+            <button onclick="logoutAdmin()" class="logout-btn">🚪 Выход</button>
+        </nav>
+
+        <main class="admin-content">
+            <!-- Dashboard -->
+            <section id="dashboard" class="section active">
+                <h2>📊 Общая статистика</h2>
+                <div id="statsGrid">
+                    <div class="loading">Загрузка статистики...</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-xl); margin-top: var(--space-2xl);" class="dashboard-grid">
+                    <div>
+                        <h3>📈 Последние бронирования</h3>
+                        <div class="table-container">
+                            <div id="recentBookings">
+                                <div class="loading">Загрузка...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>🎪 Ближайшие мероприятия</h3>
+                        <div class="table-container">
+                            <div id="upcomingEvents">
+                                <div class="loading">Загрузка...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visitor Chart -->
+                <div style="margin-top: var(--space-2xl);">
+                    <div class="table-container">
+                        <div style="padding: var(--space-lg);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md);">
+                                <h3 style="margin: 0; color: var(--text);">📊 Уникальные посетители</h3>
+                                <div style="display: flex; gap: var(--space-sm);">
+                                    <button class="btn btn-sm btn-secondary" onclick="admin.loadVisitorChart(7)">7 дней</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="admin.loadVisitorChart(30)">30 дней</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="admin.loadVisitorChart(90)">90 дней</button>
+                                </div>
+                            </div>
+                            <div style="position: relative; height: 400px;">
+                                <canvas id="visitorChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bookings -->
+            <section id="bookings" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md);">
+                    <h2 style="margin: 0;">🎫 Все бронирования</h2>
+                    <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                        <input type="text" id="searchBookings" placeholder="🔍 Поиск..." style="padding: var(--space-sm); min-width: 250px;">
+                        <button class="btn btn-info" onclick="admin.exportBookings('csv')">📤 CSV</button>
+                        <button class="btn btn-info" onclick="admin.exportBookings('excel')">📊 Excel</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div id="allBookings">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events -->
+            <section id="events" class="section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg); flex-wrap: wrap; gap: var(--space-md);">
+                    <h2 style="margin: 0;">📅 Все мероприятия</h2>
+                    <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+                        <select id="filterEvents" style="padding: var(--space-sm);">
+                            <option value="">Все</option>
+                            <option value="upcoming">Предстоящие</option>
+                            <option value="past">Завершенные</option>
+                        </select>
+                        <button class="btn btn-info" onclick="admin.exportEvents('csv')">📤 CSV</button>
+                        <button class="btn btn-info" onclick="admin.exportEvents('excel')">📊 Excel</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div id="allEvents">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- New Event -->
+            <section id="newEvent" class="section">
+                <h2>➕ Создать мероприятие</h2>
+                <div class="table-container" style="padding: var(--space-xl);">
+                    <form id="createEventForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);" class="dashboard-grid">
+                            <div class="form-group">
+                                <label for="eventName">Название *</label>
+                                <input type="text" id="eventName" required placeholder="Введите название">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="eventDate">Дата и время *</label>
+                                <input type="datetime-local" id="eventDate" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="eventVenue">Площадка *</label>
+                                <input type="text" id="eventVenue" required placeholder="Место проведения">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="eventDuration">Продолжительность (мин)</label>
+                                <input type="number" id="eventDuration" value="120" min="30" max="480">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="eventDescription">Описание</label>
+                            <textarea id="eventDescription" rows="4" placeholder="Опишите мероприятие..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventImageFile">Загрузить изображение</label>
+                            <input type="file" id="eventImageFile" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp">
+                            <small>Или укажите ссылку/название файла ниже</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="eventImage">Ссылка на изображение или название файла</label>
+                            <input type="text" id="eventImage" placeholder="https://example.com/image.jpg или concert.jpg">
+                            <small>Можно указать URL или название файла из /public/images/</small>
+                        </div>
+                        <div id="eventImagePreview" style="margin-top: var(--space-md); display: none;">
+                            <label>Предпросмотр:</label>
+                            <img id="eventImagePreviewImg" src="" alt="Предпросмотр" style="max-width: 300px; max-height: 200px; border-radius: var(--radius-md); margin-top: var(--space-sm); border: 2px solid var(--surface.dark);">
+                        </div>
+
+                        <button type="submit" class="btn btn-success">🎭 Создать</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Promo Codes -->
+            <section id="promoCodes" class="section">
+                <h2>🎁 Промокоды</h2>
+
+                <!-- Create Promo Form -->
+                <div class="table-container" style="padding: var(--space-xl); margin-bottom: var(--space-xl);">
+                    <h3 style="margin-bottom: var(--space-lg);">➕ Создать промокод</h3>
+                    <form id="createPromoForm">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-lg);">
+                            <div class="form-group">
+                                <label for="promoCode">Код *</label>
+                                <input type="text" id="promoCode" name="code" required placeholder="SUMMER2024" style="font-family: monospace; text-transform: uppercase;">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="promoDiscount">Скидка (%) *</label>
+                                <input type="number" id="promoDiscount" name="discount" required min="1" max="100" placeholder="10">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="promoMaxUses">Макс. использований</label>
+                                <input type="number" id="promoMaxUses" name="max_uses" min="1" placeholder="Безлимита">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="promoExpiry">Действует до</label>
+                                <input type="datetime-local" id="promoExpiry" name="expiry_date">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="promoActive" name="is_active" checked>
+                                <span>Активен</span>
+                            </label>
+                        </div>
+
+                        <button type="button" id="createPromoButton" class="btn btn-success">🎁 Создать</button>
+                    </form>
+                </div>
+
+                <!-- Promo List -->
+                <div class="table-container">
+                    <div style="padding: var(--space-lg);">
+                        <h3 style="margin-bottom: var(--space-lg);">📋 Промокоды</h3>
+                        <div id="promoCodesContainer">
+                            <div class="loading">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Discount Categories -->
+            <section id="discountCategories" class="section">
+                <h2>🎫 Льготные категории</h2>
+
+                <!-- Create Category Form -->
+                <div class="table-container" style="padding: var(--space-xl); margin-bottom: var(--space-xl);">
+                    <h3 style="margin-bottom: var(--space-lg);">➕ Создать категорию</h3>
+                    <form id="createDiscountCategoryForm">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-lg); margin-bottom: var(--space-lg);">
+                            <div class="form-group">
+                                <label for="categoryName">Название *</label>
+                                <input type="text" id="categoryName" name="name" required placeholder="Студент">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryDiscount">Скидка (%) *</label>
+                                <input type="number" id="categoryDiscount" name="discount_percent" required min="0" max="100" placeholder="10">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryDescription">Описание</label>
+                                <input type="text" id="categoryDescription" name="description" placeholder="Кто относится">
+                            </div>
+                        </div>
+
+                        <button type="button" id="createCategoryButton" class="btn btn-success">🎫 Создать</button>
+                    </form>
+                </div>
+
+                <!-- Category List -->
+                <div class="table-container">
+                    <div style="padding: var(--space-lg);">
+                        <h3 style="margin-bottom: var(--space-lg);">📋 Категории</h3>
+                        <div id="discountCategoriesContainer">
+                            <div class="loading">Загрузка...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seats Management -->
+            <section id="seatsManagement" class="section">
+                <h2>💺 Управление местами</h2>
+
+                <div class="table-container" style="margin-bottom: var(--space-xl); padding: var(--space-lg);">
+                    <div class="form-group">
+                        <label for="eventSelect">Выберите мероприятие:</label>
+                        <select id="eventSelect">
+                            <option value="">-- Выберите --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bulk Create Seats -->
+                <div class="table-container" style="margin-bottom: var(--space-xl); padding: var(--space-lg);">
+                    <h3 style="margin-bottom: var(--space-lg);">🎪 Создать схему зала</h3>
+                    <form id="createSeatsForm">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-lg);">
+                            <div class="form-group">
+                                <label for="rowsCount">Рядов *</label>
+                                <input type="number" id="rowsCount" min="1" max="20" value="6" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="seatsPerRow">Мест в ряду *</label>
+                                <input type="number" id="seatsPerRow" min="1" max="20" value="8" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="basePrice">Цена (₽) *</label>
+                                <input type="number" id="basePrice" min="100" value="1500" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="vipRows">VIP ряды</label>
+                                <input type="text" id="vipRows" placeholder="0,1" value="0,1">
+                                <small>Нумерация с 0 (A=0, B=1...)</small>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-success" style="margin-top: var(--space-md);">
+                            🎪 Создать схему
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Seat Map -->
+                <div id="seatsContainer">
+                    <div class="loading">Выберите мероприятие</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Password check function
+        async function checkAdminPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorElement = document.getElementById('loginError');
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    document.getElementById('adminLogin').style.display = 'none';
+                    document.getElementById('adminContent').style.display = 'block';
+                    sessionStorage.setItem('adminAuthenticated', 'true');
+                    sessionStorage.setItem('adminPassword', password);
+
+                    if (!window.admin) {
+                        window.admin = new AdminPanel();
+                    }
+                } else {
+                    errorElement.style.display = 'block';
+                    document.getElementById('adminPassword').value = '';
+                    document.getElementById('adminPassword').focus();
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorElement.textContent = 'Ошибка соединения';
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function logoutAdmin() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                sessionStorage.removeItem('adminAuthenticated');
+                sessionStorage.removeItem('adminPassword');
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('adminContent').style.display = 'none';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('loginError').style.display = 'none';
+            }
+        }
+
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAdminPassword();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (sessionStorage.getItem('adminAuthenticated') === 'true') {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+
+                if (!window.admin) {
+                    window.admin = new AdminPanel();
+                }
+            } else {
+                document.getElementById('adminPassword').focus();
+            }
+        });
+
+        function openTicketChecker() {
+            window.open('/verify.html', '_blank');
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            document.querySelectorAll('.admin-nav button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            if (event.target) {
+                event.target.classList.add('active');
+            }
+
+            if (window.admin) {
+                switch(sectionId) {
+                    case 'dashboard':
+                        admin.loadDashboard();
+                        break;
+                    case 'bookings':
+                        admin.loadBookings();
+                        break;
+                    case 'events':
+                        admin.loadEvents();
+                        break;
+                    case 'promoCodes':
+                        admin.loadPromoCodes();
+                        break;
+                    case 'discountCategories':
+                        admin.loadDiscountCategories();
+                        break;
+                    case 'seatsManagement':
+                        admin.loadEventsForSelect();
+                        break;
+                }
+            }
+        }
+    </script>
+
+    <script src="admin_new.js" onload="console.log('✅ admin_new.js загружен')" onerror="console.error('❌ Ошибка загрузки admin_new.js')"></script>
+</body>
+</html>
