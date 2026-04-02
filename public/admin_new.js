@@ -715,7 +715,8 @@ class AdminPanel {
             if (!container) return;
 
             container.innerHTML = '<div class="loading">Загрузка мест...</div>';
-            const seats = await this.apiRequest(`/api/admin/seats/event/${eventId}`);
+            // Используем /api/seats/event/:eventId (без admin)
+            const seats = await this.apiRequest(`/api/seats/event/${eventId}`);
             this.renderSeatsGrid(seats || [], eventId);
         } catch (error) {
             console.error('Load seats error:', error);
