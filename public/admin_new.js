@@ -417,46 +417,111 @@ class AdminPanel {
 
     async loadVisitorChart(days = 30) {
         try {
-            const result = await this.apiRequest(`/api/admin/visitor-stats/chart?days=${days}`);
-            
-            if (!result || !result.labels || !result.data) {
+            const chartData = await this.apiRequest(`/api/admin/visitor-stats/chart?days=${days}`);
+
+            const canvas = document.getElementById('visitorChart');
+            if (!canvas) return;
+
+            // Проверяем, есть ли уже график на этом канвасе
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            if (this.visitorChart) {
+                this.visitorChart.destroy();
+                this.visitorChart = null;
+            }
+
+            // API возвращает массив объектов: [{ date, unique_visitors, total_sessions }, ...]
+            if (!Array.isArray(chartData) || chartData.length === 0) {
                 console.warn('No chart data available');
                 return;
             }
 
-            const ctx = document.getElementById('visitorChart');
-            if (!ctx) return;
+            const labels = chartData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+            });
 
-            if (this.visitorChart) {
-                this.visitorChart.destroy();
-            }
+            const uniqueVisitors = chartData.map(item => item.unique_visitors || 0);
+            const totalSessions = chartData.map(item => item.total_sessions || 0);
+
+            const ctx = canvas.getContext('2d');
 
             this.visitorChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: result.labels,
-                    datasets: [{
-                        label: 'Уникальные посетители',
-                        data: result.data,
-                        borderColor: '#006666',
-                        backgroundColor: 'rgba(0, 102, 102, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Уникальные посетители',
+                            data: uniqueVisitors,
+                            borderColor: '#006666',
+                            backgroundColor: 'rgba(0, 102, 102, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#006666',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Всего сессий',
+                            data: totalSessions,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
+                            pointBackgroundColor: '#27ae60',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: false
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15,
+                                font: {
+                                    size: 13,
+                                    weight: '600'
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                stepSize: 1
+                                stepSize: 1,
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 11
+                                }
                             }
                         }
                     }
