@@ -274,9 +274,8 @@ class AdminPanel {
 
     getStatusName(status) {
         const names = {
-            'available': 'Свободно',
-            'booked': 'Забронировано',
-            'sold': 'Продано',
+            'free': 'Свободно',
+            'occupied': 'Занято',
             'blocked': 'Заблокировано'
         };
         return names[status] || status;
@@ -736,17 +735,21 @@ class AdminPanel {
             return;
         }
 
-        // Group seats by row
+        // Group seats by row (используем seat_label вместо label)
         const rowsMap = new Map();
         seats.forEach(seat => {
-            const rowLabel = seat.label.charAt(0);
+            if (!seat.seat_label) {
+                console.warn('Seat without seat_label:', seat);
+                return;
+            }
+            const rowLabel = seat.seat_label.charAt(0);
             if (!rowsMap.has(rowLabel)) {
                 rowsMap.set(rowLabel, []);
             }
             rowsMap.get(rowLabel).push(seat);
         });
 
-        const rows = Array.from(rowsMap.entries()).sort((a, b) => 
+        const rows = Array.from(rowsMap.entries()).sort((a, b) =>
             a[0].localeCompare(b[0])
         );
 
@@ -777,9 +780,9 @@ class AdminPanel {
                     <div class="seat-row">
                         <div class="row-label">${rowLabel}</div>
                         ${rowSeats.map(seat => `
-                            <button class="seat seat-${seat.category} seat-${seat.status}" 
-                                    title="${seat.label} - ${this.getCategoryName(seat.category)} - ${seat.price}₽"
-                                    onclick="admin.editSeat(${seat.id}, '${this.escapeHtml(seat.label)}', ${seat.price}, '${seat.category}', '${seat.status}')">
+                            <button class="seat seat-${seat.category === 'vip' ? 'vip' : 'standard'} seat-${seat.status || 'free'}"
+                                    title="${seat.seat_label} - ${this.getCategoryName(seat.category || 'standard')} - ${seat.price}₽"
+                                    onclick="admin.editSeat(${seat.id}, '${this.escapeHtml(seat.seat_label)}', ${seat.price}, '${seat.category || 'standard'}', '${seat.status || 'free'}')">
                                 ${seat.price}
                             </button>
                         `).join('')}
@@ -811,7 +814,7 @@ class AdminPanel {
                         <div class="form-group">
                             <label>Статус</label>
                             <select id="editSeatStatus">
-                                <option value="available">Свободно</option>
+                                <option value="free">Свободно</option>
                                 <option value="blocked">Заблокировано</option>
                             </select>
                         </div>
